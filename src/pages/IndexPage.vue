@@ -1,13 +1,14 @@
 <template>
+  <q-header elevated>Wololo</q-header>
   <q-page class="">
-    <div class="tabHead row">
+    <div class="tabHead row hidden">
         <q-tabs v-model="tab" class="text-teal">
           <q-tab name="convert" icon="church" label="Conversion" />
           <q-tab name="videoTools" icon="movie" label="Video Tools" />
         </q-tabs>
     </div>
-    <div clas="tabContent row inline">
-        <q-tab-panels v-model="tab" animated class="bg-white text-white">
+    <div>
+        <q-tab-panels v-model="tab" animated class="text-white main">
             <q-tab-panel name="convert">
               <ConvertPage></ConvertPage>
             </q-tab-panel>
@@ -36,5 +37,15 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-
+.main{
+  background-color: transparent;
+}
+header{
+  height: 8vh;
+  background-image: url('img/frise.jpg');
+  background-size: contain;
+  text-align: center;
+  font-size: 3em;
+  font-family: 'Brush Script MT', cursive;
+}
 </style>

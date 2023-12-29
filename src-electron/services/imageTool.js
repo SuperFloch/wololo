@@ -3,6 +3,8 @@ const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
 const ffprobe = require("@ffprobe-installer/ffprobe");
 const WebpImage = require('node-webpmux').Image;
 
+const pngToIco = require('png-to-ico');
+
 const child = require('child_process')
 const path = require('path')
 const util = require('util')
@@ -157,6 +159,17 @@ class ImageTool {
                     fs.rmdirSync(frames, { recursive: true })
                 })
         });
+    }
+
+    static convertPngToIco(fileName) {
+        return new Promise((resolve) => {
+            var newName = fileName.split('/input/').join('/output/').split('.')[0] + '.ico';
+            pngToIco(fileName)
+                .then(buf => {
+                    fs.writeFileSync(newName, buf);
+                    resolve(newName)
+                })
+        })
     }
 }
 export default ImageTool;

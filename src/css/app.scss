@@ -1,4 +1,10 @@
 // app global css in SCSS form
+body {
+    background-image: url('img/bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
 img {
     max-width: 100%;
 }

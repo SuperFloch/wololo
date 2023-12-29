@@ -1,6 +1,6 @@
 <template>
-    <div class="p-relative">
-        <img :src="computeSrc" v-if="computeMediaType == 'img'">
+    <div class="p-relative border">
+        <img :src="computeSrc" v-if="computeMediaType == 'img'" ref="img" @load="onLoad">
         <video :src="computeSrc" v-if="computeMediaType == 'video'" muted @mouseover="onHover($event)" ref="videoPlayer" @loadeddata="onLoad($event)"></video>
         <div class="overlay absolute-center" :class="{'hidden': !isConverting}"></div>
     </div>
@@ -16,7 +16,7 @@ export default defineComponent({
             default: false
         }
     },
-    emits: ['click','change'],
+    emits: ['click','change','load'],
     data: function(){
         return {
             isConverting: false,
@@ -30,48 +30,6 @@ export default defineComponent({
         this.realSrc = this.src;
     },
     methods:{
-        imageClick(){
-            if(!this.isConverting && this.computeNeedConversion){
-                this.isConverting = true;
-                var type = this.computeMediaType;
-                if(this.realSrc.split(".")[1] == 'gif' || this.forceVideo){
-                    type = "video";
-                }
-                if(type == "img"){
-                    window.ipcRenderer.invoke('img:convert:webp', {img: this.realSrc}).then((newPath)=>{
-                        if(newPath){
-                            this.realSrc = newPath;
-                        }
-                        this.isConverting = false;
-                    });
-                }else if(type == "video"){
-                    if(this.realSrc.split(".")[1] == 'webp'){
-                        window.ipcRenderer.invoke('img:getFrames', {img: this.realSrc}).then((success)=>{
-                            this.realSrc = this.realSrc.split(".")[0] + ".webm";
-                            this.isConverting = false;
-                        });
-                    }else{
-                        window.ipcRenderer.invoke('img:convert:webm', {img: this.realSrc}).then((newPath)=>{
-                            if(newPath){
-                                this.realSrc = newPath;
-                            }
-                            this.isConverting = false;
-                        });
-                    }
-                }
-            }else if(this.isTiny){
-                this.isConverting = true;
-                window.ipcRenderer.invoke('webm:resize', {img: this.realSrc}).then((newPath)=>{
-                    if(newPath){
-                        this.realSrc = newPath;
-                    }
-                    this.isConverting = false;
-                });
-            }
-            else{
-                this.$emit('click', this.realSrc)
-            }
-        },
         isVideoFormat(fp){
             return this.videoFormats.includes(fp.split(".")[1]);
         },
@@ -82,11 +40,20 @@ export default defineComponent({
             if(e.target.paused){
                 e.target.play();
             }
+        },
+        getFile(){
+            if(this.computeMediaType == 'img'){
+                return this.$refs.img
+            }else{
+                return this.$refs.videoPlayer
+            }
+        },
+        onLoad(e){
+            this.$emit('load')
         }
     },
     computed: {
         computeMediaType(){
-            console.log(this.isImgFormat(this.realSrc) ? 'img' : (this.isVideoFormat(this.realSrc) ? 'video' : ''));
             return this.isImgFormat(this.realSrc) ? 'img' : (this.isVideoFormat(this.realSrc) ? 'video' : '');
         },
         computeNeedConversion(){
@@ -116,5 +83,10 @@ export default defineComponent({
     height: 100%;
     background-color: rgba(0,0,0,0.5);
     transform: none;
+}
+.border{
+    border-image: url('img/border.png') 40;
+    border-width: 30px;
+    border-style: solid;
 }
 </style>

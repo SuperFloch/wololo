@@ -26,10 +26,12 @@
     "@quasar/app-vite": "^1.0.0",
     "autoprefixer": "^10.4.2",
     "electron": "^26.2.2",
+    "electron-packager": "^17.1.2",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",
     "fluent-ffmpeg": "^2.1.2",
+    "png-to-ico": "^2.1.8",
     "postcss": "^8.4.14",
     "prettier": "^2.5.1",
     "webp-converter": "^2.3.3"

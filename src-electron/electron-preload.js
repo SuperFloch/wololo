@@ -49,6 +49,7 @@ const ipc = {
             'file:read',
             'img:convert:webp',
             'img:convert:webm',
+            'img:convert:ico',
             'img:getFrames',
             'webm:resize'
         ]
@@ -59,27 +60,27 @@ const ipc = {
 contextBridge.exposeInMainWorld(
     // Allowed 'ipcRenderer' methods.
     'ipcRenderer', {
-    // From render to main.
-    send: (channel, args) => {
-        const validChannels = ipc.render.send
-        if (validChannels.includes(channel)) {
-            ipcRenderer.send(channel, args)
-        }
-    },
-    // From main to render.
-    receive: (channel, listener) => {
-        const validChannels = ipc.render.receive
-        if (validChannels.includes(channel)) {
-            // Deliberately strip event as it includes `sender`.
-            ipcRenderer.on(channel, (event, ...args) => listener(...args))
-        }
-    },
-    // From render to main and back again.
-    invoke: (channel, args) => {
-        const validChannels = ipc.render.sendReceive
-        if (validChannels.includes(channel)) {
-            return ipcRenderer.invoke(channel, args)
+        // From render to main.
+        send: (channel, args) => {
+            const validChannels = ipc.render.send
+            if (validChannels.includes(channel)) {
+                ipcRenderer.send(channel, args)
+            }
+        },
+        // From main to render.
+        receive: (channel, listener) => {
+            const validChannels = ipc.render.receive
+            if (validChannels.includes(channel)) {
+                // Deliberately strip event as it includes `sender`.
+                ipcRenderer.on(channel, (event, ...args) => listener(...args))
+            }
+        },
+        // From render to main and back again.
+        invoke: (channel, args) => {
+            const validChannels = ipc.render.sendReceive
+            if (validChannels.includes(channel)) {
+                return ipcRenderer.invoke(channel, args)
+            }
         }
     }
-}
 )

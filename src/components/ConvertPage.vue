@@ -1,15 +1,17 @@
 <template>
     <div class="convertPage">
         <div ref="input">
-            <q-file filled v-model="currentFile" label="Add +" stack-label @update:model-value="addFile"/>
-            <MediaDisplayer :src="currentFileSrc" :class="{'hidden' : currentFileSrc == ''}"></MediaDisplayer>
+            <q-file filled v-model="currentFile" label="Add +" stack-label @update:model-value="addFile" bg-color="green" class="input"/>
+            <MediaDisplayer :src="currentFileSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media" @load="onLoad"></MediaDisplayer>
         </div>
         <div ref="monk">
             <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
         </div>
         <div ref="output">
-            <div v-for="(i,k) in computeOutFormats" :key="k" class="convertButton" @click="convert(i)">
-                <span>{{ i }}</span>
+            <div v-for="(i,k) in computeOutFormats" :key="k">
+                <q-btn  @click="convert(i)" color="green" glossy class="convertButton" :disabled="i == 'ico' && !isActiveIco">
+                    {{ i }}
+                </q-btn>
             </div>
         </div>
     </div>
@@ -28,7 +30,8 @@ export default defineComponent({
         return {
             currentFile: null,
             currentFileSrc:'',
-            isConverting: false
+            isConverting: false,
+            isActiveIco: false
         }
     },
     methods:{
@@ -47,19 +50,36 @@ export default defineComponent({
                     window.ipcRenderer.invoke('img:convert:webp', {img: this.currentFileSrc}).then((newPath)=>{
                         if(newPath){
                             this.currentFileSrc = '';
+                            this.currentFile = null;
                         }
                         this.isConverting = false;
                     });
-                    case 'webm':
+                    break;
+                case 'webm':
                     window.ipcRenderer.invoke('img:convert:webm', {img: this.currentFileSrc}).then((newPath)=>{
                         if(newPath){
                             this.currentFileSrc = '';
+                            this.currentFile = null;
                         }
                         this.isConverting = false;
                     });
+                    break;
+                case 'ico':
+                    window.ipcRenderer.invoke('img:convert:ico', {img: this.currentFileSrc}).then((newPath)=>{
+                        if(newPath){
+                            this.currentFileSrc = '';
+                            this.currentFile = null;
+                        }
+                        this.isConverting = false;
+                    });
+                    break;
                 default:
                     this.isConverting = false;
             }
+        },
+        onLoad(){
+            var img = this.$refs.media.getFile()
+            this.isActiveIco = img.width == img.height
         }
     },
     computed: {
@@ -67,11 +87,19 @@ export default defineComponent({
             if(this.currentFileSrc == '') return [];
             switch(this.currentFileSrc.split('.').slice(-1)[0]){
                 case 'jpg':
+                return [
+                    'webp'
+                ]
                 case 'png':
-                    return ['webp']
+                    return [
+                        'webp',
+                        'ico'
+                    ]
                 case 'gif':
                 case 'webp':
-                    return ['webm']
+                    return [
+                        'webm'
+                    ]
             }
         }
     }
@@ -81,18 +109,16 @@ export default defineComponent({
 .convertPage{
     display: grid;
     grid-template-columns: repeat(3,1fr);
+    height: 80vh;
+    background-color: transparent;
 }
 .convertButton{
-    color: black;
-    border: black solid 2px;
-    background-color: lightgray;
     padding: 2vh 3vw;
     text-align: center;
     text-transform: uppercase;
     font-size: 2em;
     font-weight: 800;
+    width: 100%;
 }
-.convertButton:hover{
-    background-color: grey;
-}
+
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="main">
         <img src="img/heal.webp">
     </div>
     <div class="hidden">
@@ -36,3 +36,16 @@ export default defineComponent({
     }
 })
 </script>
+<style scoped>
+.main{
+    width: 100%;
+    position: relative;
+}
+.main img{
+    width: 30%;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+</style>
