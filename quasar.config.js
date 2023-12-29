@@ -190,6 +190,10 @@ module.exports = configure(function( /* ctx */ ) {
 
                 // Windows only
                 // win32metadata: { ... }
+                executableName: 'wololo',
+                extraResource: [
+                    "./resources/ffmpeg"
+                ]
             },
 
             builder: {

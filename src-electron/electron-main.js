@@ -58,17 +58,6 @@ app.on('activate', () => {
     }
 })
 
-
-ipcMain.on('girl:infos:write', (e, data) => {
-    folderTool.writeGirlInfoFile(data.name, data.girl);
-})
-
-ipcMain.handle('folder:load', async(e, data) => {
-    return await folderTool.readGirlFolder(data.name);
-})
-ipcMain.handle('folder:create', async(e, data) => {
-    return folderTool.createGirlFolder(data.name);
-})
 ipcMain.handle('img:convert:webp', async(e, data) => {
     return await ImageTool.convertImageToWebp(data.img)
 })

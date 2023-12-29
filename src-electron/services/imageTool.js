@@ -1,6 +1,4 @@
 // Gif to WEBM library
-const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
-const ffprobe = require("@ffprobe-installer/ffprobe");
 const WebpImage = require('node-webpmux').Image;
 
 const pngToIco = require('png-to-ico');
@@ -62,8 +60,8 @@ class ImageTool {
     static async resizeWebm(imagePath) {
         return new Promise(async(resolve) => {
             var ffmpeg = require("fluent-ffmpeg")()
-                .setFfprobePath(ffprobe.path)
-                .setFfmpegPath(ffmpegInstaller.path);
+                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
+                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
 
             ffmpeg
                 .input(imagePath)
@@ -85,8 +83,8 @@ class ImageTool {
         var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.webm';
         return new Promise(async(resolve) => {
             var ffmpeg = require("fluent-ffmpeg")()
-                .setFfprobePath(ffprobe.path)
-                .setFfmpegPath(ffmpegInstaller.path);
+                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
+                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
 
             ffmpeg
                 .input(imagePath)
