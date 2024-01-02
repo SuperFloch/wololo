@@ -15,7 +15,7 @@ const terminateWithError = (error = '[fatal] error') => {
 const exec = util.promisify(child.exec)
 
 const webp = require('webp-converter');
-webp.grant_permission();
+//webp.grant_permission();  // Marche ptet pas sur le PC du boulot
 
 const fs = require('fs')
 

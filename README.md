@@ -1,6 +1,15 @@
-# wololo (wololo)
+# wololo
 
-A Quasar Project
+Convertisseur Image/Vidéo pour les formats chiants
+
+### Image
+#### PNG
+    - ico
+    - webp
+#### WEBP (animée)
+    - webm
+#### GIF
+    - webm
 
 ## Install the dependencies
 ```bash
@@ -11,7 +20,7 @@ npm install
 
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
-quasar dev
+quasar dev -m electron
 ```
 
 
@@ -34,7 +43,7 @@ npm run format
 
 ### Build the app for production
 ```bash
-quasar build
+quasar build -m electron
 ```
 
 ### Customize the configuration

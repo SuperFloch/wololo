@@ -1,5 +1,5 @@
 <template>
-    <div class="p-relative border">
+    <div class="p-relative border" style="border-image:url('img/border.png') 40">
         <img :src="computeSrc" v-if="computeMediaType == 'img'" ref="img" @load="onLoad">
         <video :src="computeSrc" v-if="computeMediaType == 'video'" muted @mouseover="onHover($event)" ref="videoPlayer" @loadeddata="onLoad($event)"></video>
         <div class="overlay absolute-center" :class="{'hidden': !isConverting}"></div>
@@ -87,7 +87,6 @@ export default defineComponent({
     transform: none;
 }
 .border{
-    border-image: url('img/border.png') 40;
     border-width: 30px;
     border-style: solid;
 }

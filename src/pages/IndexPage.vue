@@ -1,5 +1,5 @@
 <template>
-  <q-header elevated>Wololo</q-header>
+  <q-header elevated style="background-image:url('img/frise.jpg')">Wololo</q-header>
   <q-page class="">
     <div class="tabHead row hidden">
         <q-tabs v-model="tab" class="text-teal">
@@ -42,7 +42,6 @@ export default defineComponent({
 }
 header{
   height: 8vh;
-  background-image: url('img/frise.jpg');
   background-size: contain;
   text-align: center;
   font-size: 3em;

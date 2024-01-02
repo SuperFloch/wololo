@@ -18,7 +18,7 @@
         </div>
         <div class="row flex-center" v-show="resultUrl != null" transition-show="slide-down" transition-hide="fade">
             <div class="margin-auto">
-                <img src="/img/separator.png">
+                <img src="img/separator.png">
             </div>
         </div>
         <div class="row resultLine flex-center" v-show="resultUrl != null">
