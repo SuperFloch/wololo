@@ -9,7 +9,7 @@ const platform = process.platform || os.platform()
 
 let mainWindow
 
-const folderTool = new FolderTool();
+const folderTool = new FolderTool(app);
 
 function createWindow() {
     /**
@@ -59,13 +59,13 @@ app.on('activate', () => {
 })
 
 ipcMain.handle('img:convert:webp', async(e, data) => {
-    return await ImageTool.convertImageToWebp(data.img)
+    return await folderTool.readFile(await ImageTool.convertImageToWebp(data.img))
 })
 ipcMain.handle('img:convert:webm', async(e, data) => {
-    return await ImageTool.convertGifToWebm(data.img)
+    return await folderTool.readFile(await ImageTool.convertGifToWebm(data.img))
 })
 ipcMain.handle('img:convert:ico', async(e, data) => {
-    return await ImageTool.convertPngToIco(data.img)
+    return await folderTool.readFile(await ImageTool.convertPngToIco(data.img))
 })
 ipcMain.handle('webm:resize', async(e, data) => {
     return await ImageTool.resizeWebm(data.img)
@@ -82,6 +82,6 @@ ipcMain.on('img:rename', (e, data) => {
 ipcMain.on('file:write', (e, data) => {
     folderTool.writeFile(data.path, data.text)
 })
-ipcMain.on('img:upload', (e, data) => {
-    folderTool.uploadFile(data.path, data.buffer);
+ipcMain.handle('img:upload', (e, data) => {
+    return folderTool.uploadFile(data.path, data.buffer);
 })

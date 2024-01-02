@@ -5,16 +5,17 @@ const WORKSPACE_DIR = 'workspace';
 import ImageTool from './imageTool';
 
 class FolderTool {
-    constructor() {
-        if (!fs.existsSync(WORKSPACE_DIR)) {
-            fs.mkdirSync(WORKSPACE_DIR);
+    constructor(app) {
+        this.BASE_PATH = app.getPath('userData');
+        if (!fs.existsSync(this.BASE_PATH + '/' + WORKSPACE_DIR)) {
+            fs.mkdirSync(this.BASE_PATH + '/' + WORKSPACE_DIR);
         }
         this.createFolder("input");
         this.createFolder("output");
     }
 
     createFolder(folderName) {
-        var url = WORKSPACE_DIR + "/" + folderName;
+        var url = this.BASE_PATH + '/' + WORKSPACE_DIR + "/" + folderName;
         try {
             if (!fs.existsSync(url)) {
                 fs.mkdirSync(url);
@@ -51,8 +52,8 @@ class FolderTool {
             try {
                 fs.readFile(filePath, function(err, data) {
                     if (!err) {
-                        var ret = Buffer.from(data);
-                        resolve(ret.toString());
+                        var ret = Buffer.from(data).toString('base64');
+                        resolve(ret);
                     } else {
                         resolve("error");
                     }
@@ -73,11 +74,14 @@ class FolderTool {
     }
 
     uploadFile(filePath, buffer) {
-        fs.writeFileSync(filePath, Buffer.from(buffer), function(err) {
+        var savePath = this.BASE_PATH + '/' + WORKSPACE_DIR + '/input/' + filePath;
+        fs.writeFileSync(savePath, Buffer.from(buffer), function(err) {
             if (err) {
                 return console.log(err);
             }
         });
+        console.log(savePath)
+        return savePath;
     }
 
     renameFile(oldurl, newurl) {

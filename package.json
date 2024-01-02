@@ -12,6 +12,9 @@
         "dev": "quasar dev",
         "build": "quasar build"
     },
+    "build": {
+        "extraResources": ["./resources/**"]
+    },
     "dependencies": {
         "@electron/remote": "^2.1.1",
         "@quasar/extras": "^1.0.0",

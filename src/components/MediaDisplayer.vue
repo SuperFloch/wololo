@@ -31,9 +31,11 @@ export default defineComponent({
     },
     methods:{
         isVideoFormat(fp){
+            if(fp.split('data:video/').length > 1) return true;
             return this.videoFormats.includes(fp.split(".")[1]);
         },
         isImgFormat(fp){
+            if(fp.split('data:image/').length > 1) return true;
             return this.imgFormats.includes(fp.split(".")[1]);
         },
         onHover(e){

@@ -1,6 +1,7 @@
 <template>
     <div class="main">
-        <img src="img/heal.webp">
+        <img src="img/heal.webp" v-if="converting">
+        <img src="img/heal.png" v-if="!converting">
     </div>
     <div class="hidden">
         <audio src="sound/5031.wav" ref="monastery"></audio>
@@ -47,5 +48,6 @@ export default defineComponent({
     position: absolute;
     left: 0;
     right: 0;
+    transform: scaleX(-1);
 }
 </style>

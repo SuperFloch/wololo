@@ -35,8 +35,7 @@ const ipc = {
         // From render to main.
         send: [
             'img:rename',
-            'file:write',
-            'img:upload'
+            'file:write'
         ],
         // From main to render.
         receive: [
@@ -51,7 +50,8 @@ const ipc = {
             'img:convert:webm',
             'img:convert:ico',
             'img:getFrames',
-            'webm:resize'
+            'webm:resize',
+            'img:upload'
         ]
     }
 }

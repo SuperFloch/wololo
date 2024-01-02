@@ -5,12 +5,17 @@ body {
     background-position: center;
 }
 
-img {
+img,
+video {
     max-width: 100%;
 }
 
 .p-relative {
     position: relative;
+}
+
+.margin-auto {
+    margin: auto;
 }
 
 .absolute-center {

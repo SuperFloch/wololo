@@ -1,17 +1,29 @@
 <template>
-    <div class="convertPage">
-        <div ref="input">
-            <q-file filled v-model="currentFile" label="Add +" stack-label @update:model-value="addFile" bg-color="green" class="input"/>
-            <MediaDisplayer :src="currentFileSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media" @load="onLoad"></MediaDisplayer>
+    <div>
+        <div class="row convertLine">
+            <div ref="input" class="col-4">
+                <q-file filled v-model="currentFile" label="Add +" stack-label @update:model-value="addFile" bg-color="green" class="input"/>
+                <MediaDisplayer :src="filePreviewSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media" @load="onLoad"></MediaDisplayer>
+            </div>
+            <div ref="monk" class="col-4">
+                <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+            </div>
+            <div ref="output" class="col-4">
+                <div v-for="(i,k) in computeOutFormats" :key="k">
+                    <q-btn  @click="convert(i)" color="green" glossy class="convertButton" :disabled="i == 'ico' && !isActiveIco">
+                        {{ i }}
+                    </q-btn>
+                </div>
+            </div>
         </div>
-        <div ref="monk">
-            <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+        <div class="row flex-center" v-show="resultUrl != null" transition-show="slide-down" transition-hide="fade">
+            <div class="margin-auto">
+                <img src="/img/separator.png">
+            </div>
         </div>
-        <div ref="output">
-            <div v-for="(i,k) in computeOutFormats" :key="k">
-                <q-btn  @click="convert(i)" color="green" glossy class="convertButton" :disabled="i == 'ico' && !isActiveIco">
-                    {{ i }}
-                </q-btn>
+        <div class="row resultLine flex-center" v-show="resultUrl != null">
+            <div class="col-2">
+                <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green" :href="resultUrl" :download="computeResultFileName">Download</a>
             </div>
         </div>
     </div>
@@ -30,8 +42,11 @@ export default defineComponent({
         return {
             currentFile: null,
             currentFileSrc:'',
+            filePreviewSrc:'',
             isConverting: false,
-            isActiveIco: false
+            isActiveIco: false,
+            resultUrl: null,
+            resultExtension:''
         }
     },
     methods:{
@@ -39,11 +54,18 @@ export default defineComponent({
             this.currentFileSrc = '';
             const file = this.currentFile;
             const data = await file.arrayBuffer();
+            const reader = new FileReader();
+            reader.addEventListener('load',()=>{
+                this.filePreviewSrc = reader.result;
+            }, false);
+            reader.readAsDataURL(file);
             var imgName = "input_"+Math.floor(Math.random() * 500) + "." + file.name.split('.').slice(-1);
-            this.currentFileSrc = "workspace/input/"+imgName;
-            window.ipcRenderer.send('img:upload', {path: this.currentFileSrc, buffer: data});
+            window.ipcRenderer.invoke('img:upload', {path: imgName, buffer: data}).then((upPath)=>{
+                this.currentFileSrc = upPath;
+            });
         },
         convert(format){
+            this.resultUrl = null;
             this.isConverting = true;
             switch(format){
                 case 'webp':
@@ -51,6 +73,8 @@ export default defineComponent({
                         if(newPath){
                             this.currentFileSrc = '';
                             this.currentFile = null;
+                            this.resultUrl = this.stringToDataUrl(newPath, 'image/webp');
+                            this.resultExtension = 'webp';
                         }
                         this.isConverting = false;
                     });
@@ -60,6 +84,8 @@ export default defineComponent({
                         if(newPath){
                             this.currentFileSrc = '';
                             this.currentFile = null;
+                            this.resultUrl = this.stringToDataUrl(newPath, 'video/webm');
+                            this.resultExtension = 'webm';
                         }
                         this.isConverting = false;
                     });
@@ -69,6 +95,8 @@ export default defineComponent({
                         if(newPath){
                             this.currentFileSrc = '';
                             this.currentFile = null;
+                            this.resultUrl = this.stringToDataUrl(newPath, 'image/ico');
+                            this.resultExtension = 'ico';
                         }
                         this.isConverting = false;
                     });
@@ -80,6 +108,9 @@ export default defineComponent({
         onLoad(){
             var img = this.$refs.media.getFile()
             this.isActiveIco = img.width == img.height
+        },
+        stringToDataUrl(buffer,type){
+            return 'data:' + type + ';base64,' + buffer;
         }
     },
     computed: {
@@ -101,16 +132,21 @@ export default defineComponent({
                         'webm'
                     ]
             }
+        },
+        computeResultFileName(){
+            return 'result.'+this.resultExtension;
         }
     }
 })
 </script>
 <style scoped>
-.convertPage{
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
-    height: 80vh;
+.convertLine{
+    min-height: 30vh;
     background-color: transparent;
+}
+.resultLine{
+    height: 50vh;
+
 }
 .convertButton{
     padding: 2vh 3vw;
