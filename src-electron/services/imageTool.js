@@ -25,7 +25,7 @@ class ImageTool {
     }
 
     static async convertImageToWebp(imagePath) {
-        return new Promise(async(resolve) => {
+        return new Promise(async(resolve, error) => {
             try {
                 var resUrl = imagePath.split(".")[0] + ".webp";
                 resUrl = resUrl.split('/input/').join('/output/');
@@ -37,7 +37,7 @@ class ImageTool {
                 });
             } catch (e) {
                 console.log(e.message);
-                resolve(false);
+                error(e);
             }
         });
     }
@@ -58,7 +58,7 @@ class ImageTool {
     }
 
     static async resizeWebm(imagePath) {
-        return new Promise(async(resolve) => {
+        return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
                 .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
                 .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
@@ -75,13 +75,13 @@ class ImageTool {
                     ffmpeg.kill();
                     resolve(imagePath.split('.')[0] + "1.webm");
                 })
-                .on("error", (e) => console.log(e)).run();
+                .on("error", (e) => error(e)).run();
         });
     }
 
     static async convertGifToWebm(imagePath) {
         var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.webm';
-        return new Promise(async(resolve) => {
+        return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
                 .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
                 .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
@@ -98,12 +98,12 @@ class ImageTool {
                     ffmpeg.kill();
                     resolve(resUrl);
                 })
-                .on("error", (e) => console.log(e)).run();
+                .on("error", (e) => error(e)).run();
         });
     }
 
     static async convertWebpToWebmNew(filename) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, error) => {
             const nameWithoutExt = filename.replace('.webp', '')
             const frames = path.resolve(process.cwd(), 'frames')
             const deleteOriginal = true;
@@ -153,6 +153,7 @@ class ImageTool {
                     console.log('[info] Success!\n')
                 })
                 .catch(err => {
+                    error(err)
                     terminateWithError(`[fatal] ${err}`)
                     fs.rmdirSync(frames, { recursive: true })
                 })
@@ -160,12 +161,14 @@ class ImageTool {
     }
 
     static convertPngToIco(fileName) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, error) => {
             var newName = fileName.split('/input/').join('/output/').split('.')[0] + '.ico';
             pngToIco(fileName)
                 .then(buf => {
                     fs.writeFileSync(newName, buf);
                     resolve(newName)
+                }).catch(err => {
+                    error(err)
                 })
         })
     }

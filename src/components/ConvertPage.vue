@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="p-relative">
         <div class="row convertLine">
             <div ref="input" class="col-4">
                 <q-file filled v-model="currentFile" label="Add +" stack-label @update:model-value="addFile" bg-color="green" class="input"/>
@@ -23,8 +23,12 @@
         </div>
         <div class="row resultLine flex-center" v-show="resultUrl != null">
             <div class="col-2">
-                <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green" :href="resultUrl" :download="computeResultFileName">Download</a>
+                <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultUrl" :download="computeResultFileName">Download</a>
             </div>
+        </div>
+        <div class="errorToast" v-show="lastError != null">
+            <div>Error</div>
+            <div>{{ lastError }}</div>
         </div>
     </div>
 </template>
@@ -32,6 +36,7 @@
 import { defineComponent } from 'vue'
 import MediaDisplayer from './MediaDisplayer.vue';
 import MonkAnimation from './MonkAnimation.vue';
+import { useQuasar } from 'quasar'
 
 export default defineComponent({
     components: {
@@ -46,7 +51,8 @@ export default defineComponent({
             isConverting: false,
             isActiveIco: false,
             resultUrl: null,
-            resultExtension:''
+            resultExtension:'',
+            lastError: null
         }
     },
     methods:{
@@ -65,44 +71,58 @@ export default defineComponent({
             });
         },
         convert(format){
-            this.resultUrl = null;
-            this.isConverting = true;
-            switch(format){
-                case 'webp':
-                    window.ipcRenderer.invoke('img:convert:webp', {img: this.currentFileSrc}).then((newPath)=>{
-                        if(newPath){
-                            this.currentFileSrc = '';
-                            this.currentFile = null;
-                            this.resultUrl = this.stringToDataUrl(newPath, 'image/webp');
-                            this.resultExtension = 'webp';
-                        }
+            try{
+                this.resultUrl = null;
+                this.isConverting = true;
+                switch(format){
+                    case 'webp':
+                        window.ipcRenderer.invoke('img:convert:webp', {img: this.currentFileSrc}).then((newPath)=>{
+                            if(newPath){
+                                this.currentFileSrc = '';
+                                this.currentFile = null;
+                                this.resultUrl = this.stringToDataUrl(newPath, 'image/webp');
+                                this.resultExtension = 'webp';
+                            }
+                            this.isConverting = false;
+                        }).catch(err =>{
+                            this.isConverting = false;
+                            this.toast(err.message);
+                        });
+                        break;
+                    case 'webm':
+                        window.ipcRenderer.invoke('img:convert:webm', {img: this.currentFileSrc}).then((newPath)=>{
+                            if(newPath){
+                                this.currentFileSrc = '';
+                                this.currentFile = null;
+                                this.resultUrl = this.stringToDataUrl(newPath, 'video/webm');
+                                this.resultExtension = 'webm';
+                            }
+                            this.isConverting = false;
+                        }).catch(err =>{
+                            this.isConverting = false;
+                            this.toast(err.message);
+                        });
+                        break;
+                    case 'ico':
+                        window.ipcRenderer.invoke('img:convert:ico', {img: this.currentFileSrc}).then((newPath)=>{
+                            if(newPath){
+                                this.currentFileSrc = '';
+                                this.currentFile = null;
+                                this.resultUrl = this.stringToDataUrl(newPath, 'image/ico');
+                                this.resultExtension = 'ico';
+                            }
+                            this.isConverting = false;
+                        }).catch(err =>{
+                            this.isConverting = false;
+                            this.toast(err.message);
+                        });
+                        break;
+                    default:
                         this.isConverting = false;
-                    });
-                    break;
-                case 'webm':
-                    window.ipcRenderer.invoke('img:convert:webm', {img: this.currentFileSrc}).then((newPath)=>{
-                        if(newPath){
-                            this.currentFileSrc = '';
-                            this.currentFile = null;
-                            this.resultUrl = this.stringToDataUrl(newPath, 'video/webm');
-                            this.resultExtension = 'webm';
-                        }
-                        this.isConverting = false;
-                    });
-                    break;
-                case 'ico':
-                    window.ipcRenderer.invoke('img:convert:ico', {img: this.currentFileSrc}).then((newPath)=>{
-                        if(newPath){
-                            this.currentFileSrc = '';
-                            this.currentFile = null;
-                            this.resultUrl = this.stringToDataUrl(newPath, 'image/ico');
-                            this.resultExtension = 'ico';
-                        }
-                        this.isConverting = false;
-                    });
-                    break;
-                default:
-                    this.isConverting = false;
+                }
+            }catch(error){
+                this.isConverting = false;
+                this.toast(error.message);
             }
         },
         onLoad(){
@@ -111,6 +131,12 @@ export default defineComponent({
         },
         stringToDataUrl(buffer,type){
             return 'data:' + type + ';base64,' + buffer;
+        },
+        toast(msg){
+            this.lastError = msg;
+            setTimeout(()=>{
+                this.lastError = null;
+            }, 5000)
         }
     },
     computed: {
@@ -144,10 +170,6 @@ export default defineComponent({
     min-height: 30vh;
     background-color: transparent;
 }
-.resultLine{
-    height: 50vh;
-
-}
 .convertButton{
     padding: 2vh 3vw;
     text-align: center;
@@ -155,6 +177,16 @@ export default defineComponent({
     font-size: 2em;
     font-weight: 800;
     width: 100%;
+}
+.errorToast{
+    position: fixed;
+    margin: auto;
+    bottom: 5vh;
+    left: 0;
+    right: 0;
+    text-align: center;
+    background-color: red;
+    width: 50%;
 }
 
 </style>

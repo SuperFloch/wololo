@@ -50,19 +50,19 @@ class FolderTool {
     }
 
     async readFile(filePath) {
-        return new Promise(async(resolve) => {
+        return new Promise(async(resolve, error) => {
             try {
                 fs.readFile(filePath, function(err, data) {
                     if (!err) {
                         var ret = Buffer.from(data).toString('base64');
                         resolve(ret);
                     } else {
-                        resolve("error");
+                        error(err);
                     }
                 });
             } catch (err) {
                 console.log(err);
-                resolve("error");
+                resolve(err);
             }
         });
     }
