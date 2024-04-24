@@ -21,7 +21,7 @@ export default defineComponent({
         return {
             isConverting: false,
             imgFormats: ['jpg','gif','png','webp'],
-            videoFormats: ['webm','avi','mp4'],
+            videoFormats: ['webm','avi','mp4', 'mov'],
             realSrc: '',
             isTiny: false
         }
@@ -49,6 +49,12 @@ export default defineComponent({
             }else{
                 return this.$refs.videoPlayer
             }
+        },
+        isSquare(){
+            if(this.isVideoFormat){
+                return false
+            }
+            return this.$refs.img.width = this.$refs.img.height;
         },
         onLoad(e){
             this.$emit('load')
@@ -89,5 +95,9 @@ export default defineComponent({
 .border{
     border-width: 30px;
     border-style: solid;
+    width: fit-content;
+}
+img, video{
+    display: block;
 }
 </style>
