@@ -51,7 +51,9 @@ const ipc = {
             'img:convert:ico',
             'img:getFrames',
             'webm:resize',
-            'img:upload'
+            'img:upload',
+            'video:download',
+            'audio:download'
         ]
     }
 }

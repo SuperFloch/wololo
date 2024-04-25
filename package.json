@@ -13,7 +13,9 @@
         "build": "quasar build"
     },
     "build": {
-        "extraResources": ["./resources/**"]
+        "extraResources": [
+            "./resources/**"
+        ]
     },
     "dependencies": {
         "@electron/remote": "^2.1.1",
@@ -24,7 +26,8 @@
         "quasar": "^2.6.0",
         "vue": "^3.0.0",
         "vue-router": "^4.0.0",
-        "webp-converter": "^2.3.3"
+        "webp-converter": "^2.3.3",
+        "ytdl-core": "^4.11.5"
     },
     "devDependencies": {
         "@ffmpeg-installer/ffmpeg": "^1.1.0",

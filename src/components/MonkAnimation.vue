@@ -8,6 +8,7 @@
         <audio src="sound/5494.wav" ref="convert1" loop></audio>
         <audio src="sound/5495.wav" ref="convert2" loop></audio>
         <audio src="sound/5497.wav" ref="heal"></audio>
+        <audio src="sound/deathSounds.mp3" ref="death"></audio>
     </div>
 </template>
 <script>
@@ -33,6 +34,17 @@ export default defineComponent({
             if(newVal){
                 this.$refs.monastery.play();
             }
+        }
+    },
+    methods:{
+        deathSound(){
+            this.$refs.death.currentTime = 1000;
+            this.$refs.death.play();
+            setTimeout(()=>{
+                this.$refs.death.pause();
+                this.$refs.death.currentTime = 0;
+            }, 1000)
+
         }
     }
 })

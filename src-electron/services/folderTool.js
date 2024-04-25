@@ -2,18 +2,19 @@ const fs = require('fs')
 const { readdir } = require('fs').promises;
 const WORKSPACE_DIR = 'wololo';
 
-import ImageTool from './imageTool';
-
 class FolderTool {
     constructor(app) {
         this.BASE_PATH = app.getPath('userData');
-
+        this.WORKSPACE_DIR = WORKSPACE_DIR;
         if (!fs.existsSync(this.BASE_PATH + '/' + WORKSPACE_DIR)) {
             fs.mkdirSync(this.BASE_PATH + '/' + WORKSPACE_DIR);
         }
         this.createFolder("input");
         this.createFolder("output");
 
+    }
+    getBaseFolderUrl() {
+        return this.BASE_PATH + '/' + this.WORKSPACE_DIR
     }
 
     createFolder(folderName) {

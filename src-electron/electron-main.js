@@ -3,6 +3,7 @@ import path from 'path'
 import os from 'os'
 import FolderTool from './services/folderTool';
 import ImageTool from './services/imageTool';
+import VideoDownloaderTool from './services/videoDownloaderTool';
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform()
@@ -10,6 +11,7 @@ const platform = process.platform || os.platform()
 let mainWindow
 
 const folderTool = new FolderTool(app);
+const videoDownloadTool = new VideoDownloaderTool(folderTool);
 
 function createWindow() {
     /**
@@ -84,4 +86,18 @@ ipcMain.on('file:write', (e, data) => {
 })
 ipcMain.handle('img:upload', (e, data) => {
     return folderTool.uploadFile(data.path, data.buffer);
+})
+ipcMain.handle('video:download', async(e, data) => {
+        const file = await videoDownloadTool.downloadVideo(data.url)
+        if(file){
+            return await folderTool.readFile(file)
+        }
+        return null
+})
+ipcMain.handle('audio:download', async(e, data) => {
+    const file = await videoDownloadTool.downloadAudio(data.url)
+    if(file){
+        return await folderTool.readFile(file)
+    }
+    return null
 })
