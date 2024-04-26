@@ -72,6 +72,9 @@ ipcMain.handle('img:convert:ico', async(e, data) => {
 ipcMain.handle('webm:resize', async(e, data) => {
     return await ImageTool.resizeWebm(data.img)
 })
+ipcMain.handle('video:clip', async(e, data) => {
+    return await ImageTool.clipVideo(data.video, data.startTime, data.duration)
+})
 ipcMain.handle('img:getFrames', async(e, data) => {
     return await ImageTool.convertWebpToWebm(data.img);
 })
@@ -88,15 +91,15 @@ ipcMain.handle('img:upload', (e, data) => {
     return folderTool.uploadFile(data.path, data.buffer);
 })
 ipcMain.handle('video:download', async(e, data) => {
-        const file = await videoDownloadTool.downloadVideo(data.url)
-        if(file){
-            return await folderTool.readFile(file)
-        }
-        return null
+    const file = await videoDownloadTool.downloadVideo(data.url)
+    if (file) {
+        return await folderTool.readFile(file)
+    }
+    return null
 })
 ipcMain.handle('audio:download', async(e, data) => {
     const file = await videoDownloadTool.downloadAudio(data.url)
-    if(file){
+    if (file) {
         return await folderTool.readFile(file)
     }
     return null

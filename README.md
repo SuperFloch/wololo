@@ -1,6 +1,9 @@
 # wololo
 
-Convertisseur Image/Vidéo pour les formats chiants
+L'indispensable outil de conversion d'Image !
+
+- Convertisseur Image/Vidéo pour les formats chiants
+- Téléchargeur de vidéos à partir d'URL
 
 ### Image
 #### PNG

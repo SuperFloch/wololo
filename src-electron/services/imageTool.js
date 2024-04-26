@@ -79,6 +79,31 @@ class ImageTool {
         });
     }
 
+    static async clipVideo(videoPath, startTime, duration) {
+        const ext = path.extname(videoPath);
+        const outName = videoPath.split('/').splice(-1).join('/') + 'result' + ext
+        return new Promise(async(resolve, error) => {
+            var ffmpeg = require("fluent-ffmpeg")()
+                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
+                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+
+            ffmpeg
+                .input(videoPath)
+                .output(outName)
+                .setStartTime(startTime)
+                .setDuration(duration)
+                .withVideoCodec('copy')
+                .withAudioCodec('copy')
+                .on("end", (e) => {
+                    console.log("Generated !");
+                    fs.unlinkSync(videoPath);
+                    ffmpeg.kill();
+                    resolve(outName);
+                })
+                .on("error", (e) => error(e)).run();
+        });
+    }
+
     static async convertGifToWebm(imagePath) {
         var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.webm';
         return new Promise(async(resolve, error) => {

@@ -53,7 +53,9 @@ const ipc = {
             'webm:resize',
             'img:upload',
             'video:download',
-            'audio:download'
+            'audio:download',
+            'video:clip',
+            'video:crop'
         ]
     }
 }

@@ -43,7 +43,6 @@
 import { defineComponent } from 'vue'
 import MediaDisplayer from './MediaDisplayer.vue';
 import MonkAnimation from './MonkAnimation.vue';
-import { useQuasar } from 'quasar'
 
 export default defineComponent({
     components: {

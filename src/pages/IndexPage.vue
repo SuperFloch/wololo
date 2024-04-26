@@ -5,7 +5,8 @@
         <q-tabs v-model="tab" class="text-teal" :active-color="'indigo-10'">
           <q-tab name="convert" icon="church" label="Conversion"/>
           <q-tab name="ytTool" icon="download" label="Youtube" />
-          <q-tab name="videoTools" icon="movie" label="Video Tools" />
+          <q-tab name="videoClip" icon="movie" label="Video Clip" />
+          <q-tab name="videoCrop" icon="crop" label="Video Crop" />
         </q-tabs>
     </div>
     <div>
@@ -16,8 +17,11 @@
             <q-tab-panel name="ytTool">
               <VideoDownloadPage></VideoDownloadPage>
             </q-tab-panel>
-            <q-tab-panel name="videoTools">
-              <div>Video</div>
+            <q-tab-panel name="videoClip">
+              <VideoClipPage></VideoClipPage>
+            </q-tab-panel>
+            <q-tab-panel name="videoCrop">
+              <VideoCropPage></VideoCropPage>
             </q-tab-panel>
           </q-tab-panels>
       </div>
@@ -28,12 +32,16 @@
 import { defineComponent, ref } from 'vue'
 import ConvertPage from 'components/ConvertPage.vue';
 import VideoDownloadPage from 'src/components/VideoDownloadPage.vue';
+import VideoClipPage from 'src/components/VideoClipPage.vue';
+import VideoCropPage from 'src/components/VideoCropPage.vue';
 
 export default defineComponent({
   name: 'IndexPage',
   components: {
     ConvertPage,
-    VideoDownloadPage
+    VideoDownloadPage,
+    VideoClipPage,
+    VideoCropPage
   },
   setup () {
     return {
