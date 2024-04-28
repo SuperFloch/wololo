@@ -2,11 +2,23 @@ const fs = require('fs');
 const ytdl = require('ytdl-core');
 const readline = require('readline');
 const cp = require('child_process');
+const http = require('http');
+const https = require('https');
+
 class VideoDownloaderTool {
     constructor(folderTool) {
         this.folderTool = folderTool
     }
     async downloadVideo(url) {
+        if (url.split('youtube').length > 1) {
+            return await this.downloadYoutubeVideo(url);
+        } else if (url.split('xnxx').length > 1) {
+            return await this.downloadVideoXnxx(url);
+        } else if (url.split('xvideos').length > 1) {
+            return await this.downloadVideoXvideos(url);
+        }
+    }
+    async downloadYoutubeVideo(url) {
         const finalPathVideo = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + url.substring(url.length - 5, url.length) + '_v.mp4';
         const finalPathAudio = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + url.substring(url.length - 5, url.length) + '_a.mp3';
         const finalPath = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + url.substring(url.length - 5, url.length) + '.mp4';
@@ -29,13 +41,13 @@ class VideoDownloaderTool {
                             .format('mp4')
                             .outputOptions('-pix_fmt yuv420p')
                             .output(finalPath)
-                            .on('end', function() {
+                            .on('end', function () {
                                 fs.unlinkSync(finalPathAudio);
                                 fs.unlinkSync(finalPathVideo);
                                 ffmpeg.kill();
                                 resolve(finalPath)
                             })
-                            .on('error', function(err) {
+                            .on('error', function (err) {
                                 console.log('an error happened: ' + err.message);
                                 resolve(err)
                             }).run();
@@ -65,6 +77,60 @@ class VideoDownloaderTool {
             } catch (e) {
                 resolve(e)
             }
+        })
+    }
+    // https://www.xnxx.com/video-9rvvpd2/teen_zoe_kush_learns_from_stepmom_ray_veness
+    async downloadVideoXnxx(url) {
+        return new Promise((resolve) => {
+            const request = https.get(url, (response) => {
+                let body = '';
+
+                response.on('data', (data) => {
+                    body += data.toString();
+                });
+
+                response.on('end', async () => {
+                    let videoLink = body.split('html5video_base')[1].split('<a href="')[1];
+                    videoLink = videoLink.split('"')[0]
+                    resolve(await this.getFileFromUrl(videoLink))
+                });
+            });
+        });
+    }
+    async downloadVideoXvideos(url) {
+        return new Promise((resolve) => {
+            const request = https.get(url, (response) => {
+                let body = '';
+
+                response.on('data', (data) => {
+                    body += data.toString();
+                });
+
+                response.on('end', async () => {
+                    let videoLink = body.split('"contentUrl": "')[1];
+                    videoLink = videoLink.split('"')[0]
+                    resolve(await this.getFileFromUrl(videoLink))
+                });
+            });
+        });
+    }
+    async getFileFromUrl(url) {
+        return new Promise((resolve) => {
+            const finalPath = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + Math.floor(Math.random() * 5000) + '.mp4';
+            const file = fs.createWriteStream(finalPath);
+            let protocol = http
+            if (url.split(':')[0] === 'https') {
+                protocol = https
+            }
+            const request = protocol.get(url, function (response) {
+                response.pipe(file);
+
+                // after download completed close filestream
+                file.on("finish", () => {
+                    file.close();
+                    resolve(finalPath)
+                });
+            });
         })
     }
 }
