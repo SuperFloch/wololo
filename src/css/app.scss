@@ -34,9 +34,51 @@ video {
 .hidden {
     display: none;
 }
-.w-100{
+
+.w-100 {
     width: 100%;
 }
-.q-panel{
+
+.q-panel {
     min-height: 50vh;
+}
+
+.fileInput {
+    background: radial-gradient(circle, rgba(230, 197, 101, 1) 0%, rgba(166, 143, 85, 1) 100%);
+    border: 4mm ridge rgba(60, 83, 146, 0.733);
+}
+
+.fileInput :deep(.q-field__label) {
+    font-size: 2em;
+    height: 100%;
+    font-family: 'Brush Script MT', cursive;
+}
+
+
+/* width */
+
+::-webkit-scrollbar {
+    width: 1vw;
+}
+
+
+/* Track */
+
+ ::-webkit-scrollbar-track {
+    background: linear-gradient(90deg, rgb(11, 26, 32) 17%, rgb(21, 26, 91) 55%, rgb(16, 42, 51) 100%);
+}
+
+
+/* Handle */
+
+ ::-webkit-scrollbar-thumb {
+    background:  radial-gradient(circle, rgba(230, 197, 101, 1) 0%, rgb(71, 61, 36) 100%);
+    border-radius: 1vh;
+}
+
+
+/* Handle on hover */
+
+ ::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }

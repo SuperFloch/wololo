@@ -20,6 +20,7 @@
                 <div class="p-relative convertButtonList">
                     <img src="img/parcheminBg.png" class="parchemin w-100">
                     <div class="listContainer">
+                        <div class="listTitle">Output formats</div>
                         <div v-for="(i,k) in computeOutFormats" :key="k">
                             <q-btn  @click="convert(i)" color="brown" glossy class="convertButton" :disabled="i == 'ico' && !isActiveIco">
                                 {{ i }}
@@ -195,6 +196,13 @@ export default defineComponent({
     overflow: hidden;
     height: fit-content;
     text-align: center;
+}
+.listTitle{
+    position: relative;
+    font-size: 5vh;
+    position: relative;
+    color:rgba(16, 41, 111, 0.58);
+    font-family: 'Brush Script MT', cursive;
 }
 .parcheminBot{
     margin-top: -2vh;
