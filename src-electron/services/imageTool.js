@@ -81,7 +81,7 @@ class ImageTool {
 
     static async clipVideo(videoPath, startTime, duration) {
         const ext = path.extname(videoPath);
-        const outName = videoPath.split('/').splice(-1).join('/') + 'result' + ext
+        const outName = videoPath.split('.')[0] + '_clip.'+ext
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
                 .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
@@ -92,8 +92,6 @@ class ImageTool {
                 .output(outName)
                 .setStartTime(startTime)
                 .setDuration(duration)
-                .withVideoCodec('copy')
-                .withAudioCodec('copy')
                 .on("end", (e) => {
                     console.log("Generated !");
                     fs.unlinkSync(videoPath);

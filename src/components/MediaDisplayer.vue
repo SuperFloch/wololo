@@ -1,7 +1,7 @@
 <template>
     <div class="p-relative border" style="border-image:url('img/border.png') 40">
         <img :src="computeSrc" v-if="computeMediaType == 'img'" ref="img" @load="onLoad">
-        <video :src="computeSrc" v-if="computeMediaType == 'video'" muted @mouseover="onHover($event)" ref="videoPlayer" @loadeddata="onLoad($event)"></video>
+        <video :src="computeSrc" v-if="computeMediaType == 'video'" :muted="muted" @mouseover="onHover($event)" ref="videoPlayer" @loadeddata="onLoad($event)" :loop="loop" @timeupdate="onTime" @click="toggle"></video>
         <div class="overlay absolute-center" :class="{'hidden': !isConverting}"></div>
     </div>
 </template>
@@ -14,6 +14,26 @@ export default defineComponent({
         forceVideo: {
             type: Boolean,
             default: false
+        },
+        muted:{
+            type: Boolean,
+            default: true
+        },
+        autoplay: {
+            type: Boolean,
+            default: true
+        },
+        loop:{
+            type: Boolean,
+            default: false
+        },
+        start:{
+            type: Number,
+            default: 0
+        },
+        end:{
+            type: Number,
+            default: 100
         }
     },
     emits: ['click','change','load'],
@@ -39,7 +59,7 @@ export default defineComponent({
             return this.imgFormats.includes(fp.split(".")[1]);
         },
         onHover(e){
-            if(e.target.paused){
+            if(e.target.paused && this.autoplay){
                 e.target.play();
             }
         },
@@ -51,13 +71,42 @@ export default defineComponent({
             }
         },
         isSquare(){
-            if(this.isVideoFormat){
+            if(this.realSrc){
                 return false
             }
             return this.$refs.img.width = this.$refs.img.height;
         },
         onLoad(e){
             this.$emit('load')
+        },
+        toggle(){
+            if(this.computeMediaType == 'video'){
+                this.$refs.videoPlayer.paused ? this.$refs.videoPlayer.play() : this.$refs.videoPlayer.pause()
+            }
+        },
+        onTime(e){
+            const endTime = this.end / 100 * this.$refs.videoPlayer.duration
+            if(this.$refs.videoPlayer.currentTime >= endTime){
+                const startTime = this.start / 100 * this.$refs.videoPlayer.duration
+                this.$refs.videoPlayer.currentTime = startTime
+            }
+        },
+        setTime(percentage){
+            if(this.computeMediaType == 'video'){
+                this.$refs.videoPlayer.pause()
+                this.$refs.videoPlayer.currentTime = percentage / 100 * this.$refs.videoPlayer.duration
+            }
+        },
+        play(){
+            if(this.computeMediaType == 'video'){
+                this.$refs.videoPlayer.play()
+            }
+        },
+        getDuration(){
+            if(this.computeMediaType == 'video'){
+                return this.$refs.videoPlayer.duration
+            }
+            return 0
         }
     },
     computed: {
