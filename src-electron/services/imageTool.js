@@ -6,6 +6,7 @@ const pngToIco = require('png-to-ico');
 const child = require('child_process')
 const path = require('path')
 const util = require('util')
+const { removeBackground } = require('@imgly/background-removal-node');
 
 const terminateWithError = (error = '[fatal] error') => {
     console.log(error)
@@ -20,8 +21,8 @@ const webp = require('webp-converter');
 const fs = require('fs')
 
 class ImageTool {
-    constructor() {
-
+    constructor(folderTool) {
+        this.folderTool = folderTool
     }
 
     static async convertImageToWebp(imagePath) {
@@ -224,6 +225,17 @@ class ImageTool {
                     error(err)
                 })
         })
+    }
+
+    async removeImageBackground(imgSource) {
+        try{
+            const blob = await removeBackground(imgSource);
+            const buffer = Buffer.from(await blob.arrayBuffer());
+            const dataURL = `data:image/png;base64,${buffer.toString("base64")}`;
+            return dataURL;
+        }catch(e){
+            return e.message
+        }
     }
 }
 export default ImageTool;
