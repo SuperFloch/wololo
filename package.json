@@ -21,8 +21,6 @@
         "@electron/remote": "^2.1.1",
         "@quasar/extras": "^1.0.0",
         "fluent-ffmpeg": "^2.1.2",
-        "node-fetch": "^3.3.2",
-        "node-scrapy": "^0.5.0",
         "node-webpmux": "^3.1.8",
         "png-to-ico": "^2.1.8",
         "quasar": "^2.6.0",
