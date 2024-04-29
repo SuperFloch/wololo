@@ -73,7 +73,18 @@ ipcMain.handle('webm:resize', async(e, data) => {
     return await ImageTool.resizeWebm(data.img)
 })
 ipcMain.handle('video:clip', async(e, data) => {
-    return await ImageTool.clipVideo(data.video, data.startTime, data.duration)
+    const fileUrl = await ImageTool.clipVideo(data.video, data.startTime, data.duration)
+    if (fileUrl) {
+        return await folderTool.readFile(fileUrl)
+    }
+    return null
+})
+ipcMain.handle('video:crop', async(e, data) => {
+    const fileUrl = await ImageTool.cropVideo(data.video, data.x, data.y, data.w, data.h)
+    if (fileUrl) {
+        return await folderTool.readFile(fileUrl)
+    }
+    return null
 })
 ipcMain.handle('img:getFrames', async(e, data) => {
     return await ImageTool.convertWebpToWebm(data.img);

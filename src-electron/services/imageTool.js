@@ -81,7 +81,7 @@ class ImageTool {
 
     static async clipVideo(videoPath, startTime, duration) {
         const ext = path.extname(videoPath);
-        const outName = videoPath.split('.')[0] + '_clip.'+ext
+        const outName = videoPath.split('.')[0] + '_clip' + ext
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
                 .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
@@ -92,6 +92,36 @@ class ImageTool {
                 .output(outName)
                 .setStartTime(startTime)
                 .setDuration(duration)
+                .on("end", (e) => {
+                    console.log("Generated !");
+                    fs.unlinkSync(videoPath);
+                    ffmpeg.kill();
+                    resolve(outName);
+                })
+                .on("error", (e) => error(e)).run();
+        });
+    }
+
+    static async cropVideo(videoPath, x, y, w, h) {
+        const ext = path.extname(videoPath);
+        const outName = videoPath.split('.')[0] + '_crop' + ext
+        return new Promise(async(resolve, error) => {
+            var ffmpeg = require("fluent-ffmpeg")()
+                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
+                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+
+            ffmpeg
+                .input(videoPath)
+                .output(outName)
+                .videoFilters([{
+                    filter: "crop",
+                    options: {
+                        x,
+                        y,
+                        out_w: w,
+                        out_h: h
+                    },
+                }, ])
                 .on("end", (e) => {
                     console.log("Generated !");
                     fs.unlinkSync(videoPath);
