@@ -43,7 +43,9 @@ export default defineComponent({
             imgFormats: ['jpg','gif','png','webp'],
             videoFormats: ['webm','avi','mp4', 'mov'],
             realSrc: '',
-            isTiny: false
+            isTiny: false,
+            width: 0,
+            height: 0
         }
     },
     mounted: function(){
@@ -77,6 +79,13 @@ export default defineComponent({
             return this.$refs.img.width = this.$refs.img.height;
         },
         onLoad(e){
+            if(this.computeMediaType == 'video'){
+                this.width = this.$refs.videoPlayer.videoWidth
+                this.height = this.$refs.videoPlayer.videoHeight
+            }else{
+                this.width = this.$refs.img.width
+                this.height = this.$refs.img.height
+            }
             this.$emit('load')
         },
         toggle(){
@@ -145,6 +154,8 @@ export default defineComponent({
     border-width: 30px;
     border-style: solid;
     width: fit-content;
+    max-height: 100%;
+    max-width: 100%;
 }
 img, video{
     display: block;

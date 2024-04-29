@@ -36,6 +36,7 @@ export default {
             outFormat: 'mp4'
         }
     },
+    emits:['error'],
     methods: {
         downloadVideo() {
             this.isConverting = true;
@@ -51,6 +52,7 @@ export default {
             }).catch(err => {
                 this.isConverting = false;
                 console.log(err.message);
+                this.$emit('error', err.message);
                 this.$refs.monk.deathSound();
             });
         },
@@ -68,6 +70,7 @@ export default {
             }).catch(err => {
                 this.isConverting = false;
                 console.log(err.message);
+                this.$emit('error', err.message);
                 this.$refs.monk.deathSound();
             });
         },

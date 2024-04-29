@@ -54,6 +54,7 @@ export default {
         MediaDisplayer,
         MonkAnimation
     },
+    emits:['error'],
     methods:{
         async addFile(){
             this.currentFileSrc = '';
@@ -73,7 +74,7 @@ export default {
         },
         crop(){
             this.isConverting = true
-            const rect = this.$refs.cadre.getBoundingClientRect()
+            const rect = {width: this.$refs.media.width, height: this.$refs.media.height}
             const x = Math.floor(this.cropX / 100 * rect.width);
             const y = Math.floor(this.cropY / 100 * rect.height);
             const w = Math.floor(this.cropW / 100 * rect.width);
@@ -88,7 +89,7 @@ export default {
             }).catch(err =>{
                 this.isConverting = false;
                 console.log(err.message)
-                // this.toast(err.message);
+                this.$emit('error', err.message);
             });
         },
         onDragCornerTopLeft(e){
@@ -187,6 +188,7 @@ export default {
 }
 .reticula{
     position: absolute;
+    outline: solid 2px rgb(85, 255, 241);
     box-shadow: 0px 0px 0px 5000px rgba(0, 0, 0, 0.5);
 }
 .slider{

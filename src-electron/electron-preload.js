@@ -35,7 +35,8 @@ const ipc = {
         // From render to main.
         send: [
             'img:rename',
-            'file:write'
+            'file:write',
+            'quit'
         ],
         // From main to render.
         receive: [
@@ -55,7 +56,8 @@ const ipc = {
             'video:download',
             'audio:download',
             'video:clip',
-            'video:crop'
+            'video:crop',
+            'clear'
         ]
     }
 }

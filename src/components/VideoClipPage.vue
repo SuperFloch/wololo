@@ -20,9 +20,9 @@
                 <div ref="slideEnd" class="slider" :style="{'left': end+'%'}" @drag="onDragEnd"></div>
             </div>
         </div>
-        <div class="row q-mt-md justify-center" v-show="currentFileSrc != ''">
+        <div class="row q-mt-md justify-center">
             <div class="col-8">
-                <q-btn color="indigo-10 w-100" glossy @click="clip">Clip</q-btn>
+                <q-btn color="indigo-10 w-100" glossy @click="clip" :disabled="currentFileSrc === ''">Clip</q-btn>
             </div>
         </div>
         <div class="row" v-show="resultUrl !== null">
@@ -47,6 +47,7 @@ export default {
             outFormat: ''
         }
     },
+    emits:['error'],
     components:{
         MediaDisplayer,
         MonkAnimation
@@ -102,7 +103,7 @@ export default {
             }).catch(err =>{
                 this.isConverting = false;
                 console.log(err.message)
-                // this.toast(err.message);
+                this.$emit('error', err.message);
             });
         },
         stringToDataUrl(buffer,type){
@@ -134,8 +135,8 @@ export default {
     font-family: 'Brush Script MT', cursive;
 }
 .media{
-    width: fit-content;
     margin: auto;
+    max-height: 60vh;
 }
 .gauge{
     margin: auto;

@@ -13,3 +13,8 @@ export default defineComponent({
   name: 'MainLayout',
 })
 </script>
+<style scoped>
+.q-layout{
+  background-size: cover;
+}
+</style>

@@ -1,6 +1,7 @@
 const fs = require('fs')
 const { readdir } = require('fs').promises;
 const WORKSPACE_DIR = 'wololo';
+const path = require("path");
 
 class FolderTool {
     constructor(app) {
@@ -15,6 +16,24 @@ class FolderTool {
     }
     getBaseFolderUrl() {
         return this.BASE_PATH + '/' + this.WORKSPACE_DIR
+    }
+
+    async clearFolder() {
+        const folderName = this.getBaseFolderUrl() + '/input'
+        const folderName2 = this.getBaseFolderUrl() + '/output'
+        const files = await this.readFolder(folderName)
+        const files2 = await this.readFolder(folderName2)
+        for (const file of files) {
+            fs.unlinkSync(file, (err) => {
+                if (err) throw err;
+            });
+        }
+        for (const file of files2) {
+            fs.unlinkSync(file, (err) => {
+                if (err) throw err;
+            });
+        }
+        return true
     }
 
     createFolder(folderName) {

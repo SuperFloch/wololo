@@ -6,7 +6,15 @@
                 <MediaDisplayer :src="filePreviewSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media" @load="onLoad"></MediaDisplayer>
             </div>
             <div ref="monk" class="col-4">
-                <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+                <div class="monk">
+                    <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+                </div>
+                <div class="row resultLine flex-center" v-show="resultUrl != null">
+                    <div class="downloadSuccessText">Conversion Succeded !</div>
+                    <div class="col-12">
+                        <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultUrl" :download="computeResultFileName">Save</a>
+                    </div>
+                </div>
             </div>
             <div ref="output" class="col-4 p-relative">
                 <div class="p-relative convertButtonList">
@@ -22,21 +30,6 @@
                 <img src="img/parcheminBot.png" class="w-100 parcheminBot">
             </div>
         </div>
-        <div class="row flex-center" v-show="resultUrl != null" transition-show="slide-down" transition-hide="fade">
-            <div class="margin-auto">
-                <img src="img/separator.png">
-            </div>
-        </div>
-        <div class="row resultLine flex-center" v-show="resultUrl != null">
-            <div class="col-2">
-                <MediaDisplayer :src="filePreviewSrc"></MediaDisplayer>
-                <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultUrl" :download="computeResultFileName">Download</a>
-            </div>
-        </div>
-        <div class="errorToast" v-show="lastError != null">
-            <div>Error</div>
-            <div>{{ lastError }}</div>
-        </div>
     </div>
 </template>
 <script>
@@ -49,6 +42,7 @@ export default defineComponent({
         MediaDisplayer,
         MonkAnimation
     },
+    emits:['error'],
     data: function(){
         return {
             currentFile: null,
@@ -57,8 +51,7 @@ export default defineComponent({
             isConverting: false,
             isActiveIco: false,
             resultUrl: null,
-            resultExtension:'',
-            lastError: null
+            resultExtension:''
         }
     },
     methods:{
@@ -93,7 +86,7 @@ export default defineComponent({
                             this.isConverting = false;
                         }).catch(err =>{
                             this.isConverting = false;
-                            this.toast(err.message);
+                            this.$emit('error', err.message);
                         });
                         break;
                     case 'webm':
@@ -107,7 +100,7 @@ export default defineComponent({
                             this.isConverting = false;
                         }).catch(err =>{
                             this.isConverting = false;
-                            this.toast(err.message);
+                            this.$emit('error', err.message);
                         });
                         break;
                     case 'ico':
@@ -121,7 +114,7 @@ export default defineComponent({
                             this.isConverting = false;
                         }).catch(err =>{
                             this.isConverting = false;
-                            this.toast(err.message);
+                            this.$emit('error', err.message);
                         });
                         break;
                     default:
@@ -129,7 +122,7 @@ export default defineComponent({
                 }
             }catch(error){
                 this.isConverting = false;
-                this.toast(error.message);
+                this.$emit('error', err.message);
             }
         },
         onLoad(){
@@ -137,12 +130,6 @@ export default defineComponent({
         },
         stringToDataUrl(buffer,type){
             return 'data:' + type + ';base64,' + buffer;
-        },
-        toast(msg){
-            this.lastError = msg;
-            setTimeout(()=>{
-                this.lastError = null;
-            }, 5000)
         }
     },
     computed: {
@@ -187,15 +174,9 @@ export default defineComponent({
     margin: 1vh auto;
     width: 50%;
 }
-.errorToast{
-    position: fixed;
-    margin: auto;
-    bottom: 5vh;
-    left: 0;
-    right: 0;
-    text-align: center;
-    background-color: red;
-    width: 50%;
+.monk{
+    height: 35vh;
+    width: 100%;
 }
 .fileInput{
     background: radial-gradient(circle, rgba(230,197,101,1) 0%, rgba(166,143,85,1) 100%);
@@ -227,6 +208,13 @@ export default defineComponent({
     margin: auto;
     left: 0;
     right: 0;
+}
+.downloadSuccessText{
+    margin: auto;
+    color: rgb(11, 87, 26);
+    font-size: 5vh;
+    font-family: 'Brush Script MT', cursive;
+    text-shadow: 1px 1px 4px rgba(76, 58, 29, 0.5);
 }
 
 </style>

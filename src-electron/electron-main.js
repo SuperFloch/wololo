@@ -115,3 +115,9 @@ ipcMain.handle('audio:download', async(e, data) => {
     }
     return null
 })
+ipcMain.handle('clear', async(e) => {
+    return await folderTool.clearFolder()
+})
+ipcMain.on('quit', (e) => {
+    app.quit()
+})
