@@ -1,15 +1,17 @@
 # wololo
 
-L'indispensable outil de conversion d'Image !
+Ultimate tool for little tasks on editing videos
 
-- Convertisseur Image/Vidéo pour les formats chiants
-- Téléchargeur de vidéos à partir d'URL
+- Convert into WEBM format easily
+- Clip a part of your video
+- Crop your video
+- Download from Youtube
 
 ### Image
 #### PNG
     - ico
     - webp
-#### WEBP (animée)
+#### WEBP (animated)
     - webm
 #### GIF
     - webm
