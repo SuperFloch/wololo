@@ -118,6 +118,20 @@ export default defineComponent({
                             this.$emit('error', err.message);
                         });
                         break;
+                    case 'gif':
+                        window.ipcRenderer.invoke('img:convert:gif', {img: this.currentFileSrc}).then((newPath)=>{
+                            if(newPath){
+                                this.currentFileSrc = '';
+                                this.currentFile = null;
+                                this.resultUrl = this.stringToDataUrl(newPath, 'image/gif');
+                                this.resultExtension = 'gif';
+                            }
+                            this.isConverting = false;
+                        }).catch(err =>{
+                            this.isConverting = false;
+                            this.$emit('error', err.message);
+                        });
+                        break;
                     default:
                         this.isConverting = false;
                 }
@@ -154,6 +168,8 @@ export default defineComponent({
                     return [
                         'webm'
                     ]
+                case 'webm':
+                    return ['gif']
             }
         },
         computeResultFileName(){

@@ -49,6 +49,7 @@ const ipc = {
             'file:read',
             'img:convert:webp',
             'img:convert:webm',
+            'img:convert:gif',
             'img:convert:ico',
             'img:getFrames',
             'webm:resize',

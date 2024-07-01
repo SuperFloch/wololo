@@ -155,6 +155,26 @@ class ImageTool {
         });
     }
 
+    static async convertToGif(imagePath) {
+        var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.gif';
+        return new Promise(async(resolve, error) => {
+            var ffmpeg = require("fluent-ffmpeg")()
+                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
+                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+
+            ffmpeg
+                .input(imagePath)
+                .output(resUrl)
+                .on("end", (e) => {
+                    console.log("Generated !");
+                    fs.unlinkSync(imagePath);
+                    ffmpeg.kill();
+                    resolve(resUrl);
+                })
+                .on("error", (e) => error(e)).run();
+        });
+    }
+
     static async convertWebpToWebmNew(filename) {
         return new Promise((resolve, error) => {
             const nameWithoutExt = filename.replace('.webp', '')

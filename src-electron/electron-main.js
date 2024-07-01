@@ -65,6 +65,9 @@ app.on('activate', () => {
 ipcMain.handle('img:convert:webp', async(e, data) => {
     return await folderTool.readFile(await ImageTool.convertImageToWebp(data.img))
 })
+ipcMain.handle('img:convert:gif', async(e, data) => {
+    return await folderTool.readFile(await ImageTool.convertToGif(data.img))
+})
 ipcMain.handle('img:convert:webm', async(e, data) => {
     return await folderTool.readFile(await ImageTool.convertGifToWebm(data.img))
 })
