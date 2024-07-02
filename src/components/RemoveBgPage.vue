@@ -2,7 +2,8 @@
     <div class="p-relative">
         <div class="row convertLine">
             <div ref="input" class="col-10">
-                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput"/>
+                <div class="head text-center">Remove the background of an image</div>
+                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" accept="image/*"/>
                 <MediaDisplayer :src="filePreviewSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media" class="media"></MediaDisplayer>
             </div>
             <div ref="monk" class="col-2">
@@ -12,7 +13,7 @@
             </div>
         </div>
         <div class="row justify-center q-mt-md">
-            <q-btn color="indigo-10" @click="convert" :disabled="currentFileSrc == ''">Remove Background</q-btn>
+            <q-btn color="indigo-10" @click="convert" :disabled="currentFileSrc == ''" glossy>Remove Background</q-btn>
         </div>
         <div class="row resultLine flex-center" v-show="resultUrl != null">
             <div class="col-4"></div>
@@ -90,6 +91,12 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+.head {
+    color: rgb(11, 14, 87);
+    font-size: 3em;
+    font-family: 'Brush Script MT', cursive;
+    text-shadow: 1px 1px 4px rgba(76, 58, 29, 0.5);
+}
 .downloadSuccessText{
     margin: auto;
     color: rgb(11, 87, 26);

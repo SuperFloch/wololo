@@ -2,7 +2,7 @@
     <div class="p-relative">
         <div class="row convertLine">
             <div ref="input" class="col-12">
-                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" />
+                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" accept="video/*"/>
                 <div class="row">
                     <div class="media col-10 p-relative">
                         <MediaDisplayer :src="filePreviewSrc" :class="{ 'hidden': currentFileSrc == '' }" ref="media" :autoplay="true" :loop="true"></MediaDisplayer>
