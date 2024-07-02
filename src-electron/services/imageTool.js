@@ -6,7 +6,7 @@ const pngToIco = require('png-to-ico');
 const child = require('child_process')
 const path = require('path')
 const util = require('util')
-const { removeBackground } = require('@imgly/background-removal-node');
+import { removeBackground } from "@imgly/background-removal-node";
 
 const terminateWithError = (error = '[fatal] error') => {
     console.log(error)
@@ -228,12 +228,18 @@ class ImageTool {
     }
 
     async removeImageBackground(imgSource) {
-        try{
-            const blob = await removeBackground(imgSource);
-            const buffer = Buffer.from(await blob.arrayBuffer());
-            const dataURL = `data:image/png;base64,${buffer.toString("base64")}`;
-            return dataURL;
-        }catch(e){
+        try {
+            const imageBuffer = fs.readFileSync(imgSource);
+            const blob = new Blob([imageBuffer], { type: "image/png" });
+            var newName = imgSource.split('/input/').join('/output/');
+            return new Promise((resolve) => {
+                removeBackground(blob).then(async(blob2) => {
+                    const buffer = Buffer.from(await blob2.arrayBuffer());
+                    fs.writeFileSync(newName, buffer);
+                    resolve(newName);
+                })
+            })
+        } catch (e) {
             return e.message
         }
     }

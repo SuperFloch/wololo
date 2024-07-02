@@ -3,7 +3,7 @@
         <div class="row convertLine">
             <div ref="input" class="col-10">
                 <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput"/>
-                <MediaDisplayer :src="filePreviewSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media"></MediaDisplayer>
+                <MediaDisplayer :src="filePreviewSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media" class="media"></MediaDisplayer>
             </div>
             <div ref="monk" class="col-2">
                 <div class="monk">
@@ -11,11 +11,17 @@
                 </div>
             </div>
         </div>
-        <div class="row justify-center">
+        <div class="row justify-center q-mt-md">
             <q-btn color="indigo-10" @click="convert" :disabled="currentFileSrc == ''">Remove Background</q-btn>
         </div>
         <div class="row resultLine flex-center" v-show="resultUrl != null">
-            <div class="downloadSuccessText">Removal Succeded !</div>
+            <div class="col-4"></div>
+            <div class="col-4">
+                <div class="downloadSuccessText">Removal Succeded !</div>
+            </div>
+            <div class="col-4">
+                <img :src="resultUrl" :class="{'hidden' : resultUrl == null}">
+            </div>
             <div class="col-12">
                 <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultUrl" :download="'result.png'">Save</a>
             </div>
@@ -63,9 +69,13 @@ export default defineComponent({
             try{
                 this.resultUrl = null;
                 this.isConverting = true;
-                window.ipcRenderer.invoke('img:remove-bg', {img: await this.currentFile.arrayBuffer()}).then((newPath)=>{
-                    console.log(newPath)
-                    this.isConverting = false
+                window.ipcRenderer.invoke('img:remove-bg', {img: await this.currentFileSrc}).then((newPath)=>{
+                    if(newPath){
+                        this.currentFileSrc = '';
+                        this.currentFile = null;
+                        this.resultUrl = this.stringToDataUrl(newPath, 'image/png');
+                    }
+                    this.isConverting = false;
                 })
 
             }catch(error){
@@ -86,5 +96,9 @@ export default defineComponent({
     font-size: 5vh;
     font-family: 'Brush Script MT', cursive;
     text-shadow: 1px 1px 4px rgba(76, 58, 29, 0.5);
+}
+.media{
+    max-width: 40vw;
+    max-height: 50vh;
 }
 </style>

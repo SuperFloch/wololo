@@ -13,7 +13,7 @@
           <q-tab name="videoClip" icon="movie" label="Video Clip" />
           <q-tab name="videoCrop" icon="crop" label="Video Crop" />
           <q-tab name="ytTool" icon="download" label="Youtube" />
-          <q-tab name="removeBg" icon="download" label="Remove Bg" />
+          <q-tab name="removeBg" icon="portrait" label="Remove Bg" />
         </q-tabs>
     </div>
     <div>

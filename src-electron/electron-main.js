@@ -119,7 +119,7 @@ ipcMain.handle('audio:download', async(e, data) => {
 })
 ipcMain.handle('img:remove-bg', async(e, data) => {
     const imgTool = new ImageTool(folderTool)
-    return await imgTool.removeImageBackground(data.img)
+    return await folderTool.readFile(await imgTool.removeImageBackground(data.img))
 })
 ipcMain.handle('clear', async(e) => {
     return await folderTool.clearFolder()
