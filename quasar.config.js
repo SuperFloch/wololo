@@ -190,7 +190,7 @@ module.exports = configure(function( /* ctx */ ) {
 
                 // Windows only
                 // win32metadata: { ... }
-                executableName: 'wololo',
+                executableName: 'Wololo',
                 extraResource: [
                     "./resources/ffmpeg"
                 ]
@@ -199,7 +199,15 @@ module.exports = configure(function( /* ctx */ ) {
             builder: {
                 // https://www.electron.build/configuration/configuration
 
-                appId: 'wololo'
+                appId: 'com.electron.wololo',
+                productName: 'Wololo',
+                extraResource: [{
+                    from: "./resources/ffmpeg",
+                    to: 'resources'
+                }],
+                "files": [
+                    "**/*"
+                ]
             }
         },
 

@@ -13,6 +13,7 @@
           <q-tab name="videoClip" icon="movie" label="Video Clip" />
           <q-tab name="videoCrop" icon="crop" label="Video Crop" />
           <q-tab name="ytTool" icon="download" label="Youtube" />
+          <q-tab name="removeBg" icon="portrait" label="Remove Bg" />
         </q-tabs>
     </div>
     <div>
@@ -28,6 +29,9 @@
             </q-tab-panel>
             <q-tab-panel name="ytTool">
               <VideoDownloadPage @error="toast"></VideoDownloadPage>
+            </q-tab-panel>
+            <q-tab-panel name="removeBg">
+              <RemoveBgPage @error="toast"></RemoveBgPage>
             </q-tab-panel>
           </q-tab-panels>
       </div>
@@ -48,6 +52,7 @@ import ConvertPage from 'components/ConvertPage.vue';
 import VideoDownloadPage from 'src/components/VideoDownloadPage.vue';
 import VideoClipPage from 'src/components/VideoClipPage.vue';
 import VideoCropPage from 'src/components/VideoCropPage.vue';
+import RemoveBgPage from 'src/components/RemoveBgPage.vue';
 
 export default defineComponent({
   name: 'IndexPage',
@@ -55,7 +60,8 @@ export default defineComponent({
     ConvertPage,
     VideoDownloadPage,
     VideoClipPage,
-    VideoCropPage
+    VideoCropPage,
+    RemoveBgPage
   },
   data(){
     return {

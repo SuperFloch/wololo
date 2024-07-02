@@ -54,6 +54,7 @@ const ipc = {
             'img:getFrames',
             'webm:resize',
             'img:upload',
+            'img:remove-bg',
             'video:download',
             'audio:download',
             'video:clip',
