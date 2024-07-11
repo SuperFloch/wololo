@@ -74,6 +74,9 @@ ipcMain.handle('img:convert:webm', async(e, data) => {
 ipcMain.handle('img:convert:ico', async(e, data) => {
     return await folderTool.readFile(await ImageTool.convertPngToIco(data.img))
 })
+ipcMain.handle('img:convert:heicTojpg', async(e, data) => {
+    return await folderTool.readFile(await ImageTool.convertHeicToJpg(data.img))
+})
 ipcMain.handle('webm:resize', async(e, data) => {
     return await ImageTool.resizeWebm(data.img)
 })

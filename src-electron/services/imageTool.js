@@ -6,6 +6,8 @@ const pngToIco = require('png-to-ico');
 const child = require('child_process')
 const path = require('path')
 const util = require('util')
+const { promisify } = require('util');
+const convert = require('heic-convert');
 import { removeBackground } from "@imgly/background-removal-node";
 
 const terminateWithError = (error = '[fatal] error') => {
@@ -244,6 +246,20 @@ class ImageTool {
                 }).catch(err => {
                     error(err)
                 })
+        })
+    }
+
+    static convertHeicToJpg(fileName) {
+        return new Promise(async(resolve) => {
+            var newName = fileName.split('/input/').join('/output/').split('.')[0] + '.jpg';
+            const imageBuffer = fs.readFileSync(fileName)
+            const outputBuffer = await convert({
+                buffer: imageBuffer, // the HEIC file buffer
+                format: 'JPEG', // output format
+                quality: 1 // the jpeg compression quality, between 0 and 1
+            });
+            fs.writeFileSync(newName, outputBuffer)
+            resolve(newName)
         })
     }
 

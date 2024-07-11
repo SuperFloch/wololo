@@ -51,6 +51,7 @@ const ipc = {
             'img:convert:webm',
             'img:convert:gif',
             'img:convert:ico',
+            'img:convert:heicTojpg',
             'img:getFrames',
             'webm:resize',
             'img:upload',
