@@ -12,15 +12,11 @@
         "dev": "quasar dev",
         "build": "quasar build"
     },
-    "build": {
-        "extraResources": [
-            "./resources/**"
-        ]
-    },
     "dependencies": {
         "@electron/remote": "^2.1.1",
-        "@imgly/background-removal-node": "^1.4.5",
         "@quasar/extras": "^1.0.0",
+        "ffmpeg-static": "^5.2.0",
+        "ffprobe-static": "^3.1.0",
         "fluent-ffmpeg": "^2.1.2",
         "heic-convert": "^2.1.0",
         "node-webpmux": "^3.1.8",

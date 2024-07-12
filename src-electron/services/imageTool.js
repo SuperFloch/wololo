@@ -8,7 +8,7 @@ const path = require('path')
 const util = require('util')
 const { promisify } = require('util');
 const convert = require('heic-convert');
-import { removeBackground } from "@imgly/background-removal-node";
+// import { removeBackground } from "@imgly/background-removal-node";
 
 const terminateWithError = (error = '[fatal] error') => {
     console.log(error)
@@ -21,6 +21,15 @@ const webp = require('webp-converter');
 //webp.grant_permission();  // Marche ptet pas sur le PC du boulot
 
 const fs = require('fs')
+
+const ffmpegPath = require('ffmpeg-static').replace(
+    'app.asar',
+    'app.asar.unpacked'
+);
+const ffprobePath = require('ffprobe-static').path.replace(
+    'app.asar',
+    'app.asar.unpacked'
+);
 
 class ImageTool {
     constructor(folderTool) {
@@ -63,8 +72,8 @@ class ImageTool {
     static async resizeWebm(imagePath) {
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
-                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
-                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+                .setFfprobePath(ffprobePath)
+                .setFfmpegPath(ffmpegPath);
 
             ffmpeg
                 .input(imagePath)
@@ -87,8 +96,8 @@ class ImageTool {
         const outName = videoPath.split('.')[0] + '_clip' + ext
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
-                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
-                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+                .setFfprobePath(ffprobePath)
+                .setFfmpegPath(ffmpegPath);
 
             ffmpeg
                 .input(videoPath)
@@ -110,8 +119,8 @@ class ImageTool {
         const outName = videoPath.split('.')[0] + '_crop' + ext
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
-                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
-                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+                .setFfprobePath(ffprobePath)
+                .setFfmpegPath(ffmpegPath);
 
             ffmpeg
                 .input(videoPath)
@@ -139,8 +148,8 @@ class ImageTool {
         var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.webm';
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
-                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
-                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+                .setFfprobePath(ffprobePath)
+                .setFfmpegPath(ffmpegPath);
 
             ffmpeg
                 .input(imagePath)
@@ -162,8 +171,8 @@ class ImageTool {
         var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.gif';
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
-                .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
-                .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
+                .setFfprobePath(ffprobePath)
+                .setFfmpegPath(ffmpegPath);
 
             ffmpeg
                 .input(imagePath)
@@ -265,6 +274,7 @@ class ImageTool {
 
     async removeImageBackground(imgSource) {
         try {
+            /*
             const imageBuffer = fs.readFileSync(imgSource);
             const blob = new Blob([imageBuffer], { type: "image/png" });
             var newName = imgSource.split('/input/').join('/output/');
@@ -275,6 +285,7 @@ class ImageTool {
                     resolve(newName);
                 })
             })
+                */
         } catch (e) {
             return e.message
         }
