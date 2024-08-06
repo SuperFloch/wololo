@@ -2,7 +2,7 @@
   <q-header elevated style="background-image:url('img/frise.jpg')">
     <span>Wololo</span>
     <div class="fixed-top-right">
-      <q-btn round icon="wash" color="orange" size="sm" glossy class="q-mr-sm" @click="clear"></q-btn>
+      <q-btn round icon="wash" color="orange" size="sm" glossy class="q-mr-sm" @click="clear" title="Clear cache"></q-btn>
       <q-btn round icon="close" color="red" size="sm" glossy @click="quit"></q-btn>
     </div>
   </q-header>
@@ -13,7 +13,7 @@
           <q-tab name="videoClip" icon="movie" label="Video Clip" />
           <q-tab name="videoCrop" icon="crop" label="Video Crop" />
           <q-tab name="ytTool" icon="download" label="Youtube" />
-          <!--<q-tab name="removeBg" icon="portrait" label="Remove Bg" />-->
+          <q-tab name="removeBg" icon="portrait" label="Remove Bg" />
         </q-tabs>
     </div>
     <div>
@@ -127,5 +127,9 @@ header{
     text-align: center;
     background-color: rgb(136, 164, 255);
     width: 50%;
+}
+.history{
+  position: absolute;
+  bottom:0;
 }
 </style>

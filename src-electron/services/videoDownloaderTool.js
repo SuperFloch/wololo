@@ -1,9 +1,12 @@
 const fs = require('fs');
-const ytdl = require('ytdl-core');
+// const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 const readline = require('readline');
 const cp = require('child_process');
 const http = require('http');
 const https = require('https');
+import cookie from './ytCookie';
+const agent = ytdl.createAgent(cookie);
 
 class VideoDownloaderTool {
     constructor(folderTool) {
@@ -25,7 +28,7 @@ class VideoDownloaderTool {
 
         return new Promise(resolve => {
             try {
-                const video = ytdl(url, { quality: 'highestvideo' })
+                const video = ytdl(url, { quality: 'highestvideo', agent })
                 video.pipe(fs.createWriteStream(finalPathVideo))
                 video.on('end', () => {
                     const audio = ytdl(url, { quality: 'highestaudio' })
@@ -41,22 +44,26 @@ class VideoDownloaderTool {
                             .format('mp4')
                             .outputOptions('-pix_fmt yuv420p')
                             .output(finalPath)
-                            .on('end', function () {
+                            .on('end', function() {
+                                console.log('end')
                                 fs.unlinkSync(finalPathAudio);
                                 fs.unlinkSync(finalPathVideo);
                                 ffmpeg.kill();
                                 resolve(finalPath)
                             })
-                            .on('error', function (err) {
+                            .on('error', function(err) {
                                 console.log('an error happened: ' + err.message);
                                 resolve(err)
+                                ffmpeg.kill()
                             }).run();
                     })
                 });
                 video.on('error', (e) => {
+                    console.log(e)
                     resolve(null)
                 })
             } catch (e) {
+                console.log(e)
                 resolve(e)
             }
         })
@@ -66,12 +73,13 @@ class VideoDownloaderTool {
 
         return new Promise(resolve => {
             try {
-                const audio = ytdl(url, { quality: 'highestaudio' })
+                const audio = ytdl(url, { quality: 'highestaudio', agent })
                 audio.pipe(fs.createWriteStream(finalPathAudio))
                 audio.on('end', () => {
                     resolve(finalPathAudio);
                 })
                 audio.on('error', (e) => {
+                    console.log(e)
                     resolve(null)
                 })
             } catch (e) {
@@ -79,7 +87,7 @@ class VideoDownloaderTool {
             }
         })
     }
-    
+
     async downloadVideoXnxx(url) {
         return new Promise((resolve) => {
             const request = https.get(url, (response) => {
@@ -89,7 +97,7 @@ class VideoDownloaderTool {
                     body += data.toString();
                 });
 
-                response.on('end', async () => {
+                response.on('end', async() => {
                     let videoLink = body.split('html5video_base')[1].split('<a href="')[1];
                     videoLink = videoLink.split('"')[0]
                     resolve(await this.getFileFromUrl(videoLink))
@@ -106,7 +114,7 @@ class VideoDownloaderTool {
                     body += data.toString();
                 });
 
-                response.on('end', async () => {
+                response.on('end', async() => {
                     let videoLink = body.split('"contentUrl": "')[1];
                     videoLink = videoLink.split('"')[0]
                     resolve(await this.getFileFromUrl(videoLink))
@@ -122,7 +130,7 @@ class VideoDownloaderTool {
             if (url.split(':')[0] === 'https') {
                 protocol = https
             }
-            const request = protocol.get(url, function (response) {
+            const request = protocol.get(url, function(response) {
                 response.pipe(file);
 
                 // after download completed close filestream

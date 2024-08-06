@@ -62,6 +62,12 @@ app.on('activate', () => {
     }
 })
 
+ipcMain.handle('folder:read', async(e, data) => {
+    return await folderTool.readFolder(folderTool.getBaseFolderUrl() + '/' + data)
+})
+ipcMain.handle('img:get', async(e, data) => {
+    return await folderTool.readFile(data)
+})
 ipcMain.handle('img:convert:webp', async(e, data) => {
     return await folderTool.readFile(await ImageTool.convertImageToWebp(data.img))
 })
@@ -69,7 +75,10 @@ ipcMain.handle('img:convert:gif', async(e, data) => {
     return await folderTool.readFile(await ImageTool.convertToGif(data.img))
 })
 ipcMain.handle('img:convert:webm', async(e, data) => {
-    return await folderTool.readFile(await ImageTool.convertGifToWebm(data.img))
+    return await folderTool.readFile(await ImageTool.convertGifToVideo(data.img))
+})
+ipcMain.handle('img:convert:mp4', async(e, data) => {
+    return await folderTool.readFile(await ImageTool.convertGifToVideo(data.img, 'mp4'))
 })
 ipcMain.handle('img:convert:ico', async(e, data) => {
     return await folderTool.readFile(await ImageTool.convertPngToIco(data.img))

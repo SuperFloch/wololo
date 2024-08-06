@@ -90,13 +90,14 @@ export default defineComponent({
                             this.$emit('error', err.message);
                         });
                         break;
+                    case 'mp4':
                     case 'webm':
-                        window.ipcRenderer.invoke('img:convert:webm', { img: this.currentFileSrc }).then((newPath) => {
+                        window.ipcRenderer.invoke('img:convert:' + format, { img: this.currentFileSrc }).then((newPath) => {
                             if (newPath) {
                                 this.currentFileSrc = '';
                                 this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'video/webm');
-                                this.resultExtension = 'webm';
+                                this.resultUrl = this.stringToDataUrl(newPath, 'video/' + format);
+                                this.resultExtension = format;
                             }
                             this.isConverting = false;
                         }).catch(err => {
@@ -182,6 +183,7 @@ export default defineComponent({
                 case 'avi':
                 case 'mp4':
                 case 'gif':
+                    return ['webm', 'mp4']
                 case 'webp':
                     return [
                         'webm'

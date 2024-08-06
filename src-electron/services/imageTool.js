@@ -8,7 +8,7 @@ const path = require('path')
 const util = require('util')
 const { promisify } = require('util');
 const convert = require('heic-convert');
-// import { removeBackground } from "@imgly/background-removal-node";
+import { removeBackground } from "@imgly/background-removal-node";
 
 const terminateWithError = (error = '[fatal] error') => {
     console.log(error)
@@ -144,8 +144,8 @@ class ImageTool {
         });
     }
 
-    static async convertGifToWebm(imagePath) {
-        var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.webm';
+    static async convertGifToVideo(imagePath, format = 'webm') {
+        var resUrl = imagePath.split('/input/').join('/output/').split('.')[0] + '.' + format;
         return new Promise(async(resolve, error) => {
             var ffmpeg = require("fluent-ffmpeg")()
                 .setFfprobePath(ffprobePath)
@@ -274,7 +274,6 @@ class ImageTool {
 
     async removeImageBackground(imgSource) {
         try {
-            /*
             const imageBuffer = fs.readFileSync(imgSource);
             const blob = new Blob([imageBuffer], { type: "image/png" });
             var newName = imgSource.split('/input/').join('/output/');
@@ -285,7 +284,6 @@ class ImageTool {
                     resolve(newName);
                 })
             })
-                */
         } catch (e) {
             return e.message
         }
