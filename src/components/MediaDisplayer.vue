@@ -40,7 +40,7 @@ export default defineComponent({
     data: function(){
         return {
             isConverting: false,
-            imgFormats: ['jpg','gif','png','webp'],
+            imgFormats: ['jpg','gif','png','webp', 'svg'],
             videoFormats: ['webm','avi','mp4', 'mov'],
             realSrc: '',
             isTiny: false,

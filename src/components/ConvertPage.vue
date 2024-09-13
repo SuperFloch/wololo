@@ -3,7 +3,7 @@
         <div class="row convertLine">
             <div ref="input" class="col-4">
                 <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" />
-                <MediaDisplayer :src="filePreviewSrc" :class="{ 'hidden': currentFileSrc == '' }" ref="media" @load="onLoad"></MediaDisplayer>
+                <MediaDisplayer :src="filePreviewSrc" :class="{ 'hidden': currentFileSrc == '' }" ref="media" @load="onLoad" class="media"></MediaDisplayer>
             </div>
             <div ref="monk" class="col-4">
                 <div class="monk">
@@ -17,6 +17,7 @@
                 </div>
             </div>
             <div ref="output" class="col-4 p-relative">
+                <canvas ref="imgRenderer" hidden></canvas>
                 <div class="p-relative convertButtonList">
                     <img src="img/parcheminBg.png" class="parchemin w-100">
                     <div class="listContainer">
@@ -147,6 +148,19 @@ export default defineComponent({
                             this.$emit('error', err.message);
                         });
                         break;
+                    case 'png':
+                        var canvas = this.$refs.imgRenderer;
+                        var img = this.$refs.media.getFile();
+                        canvas.width = img.width < 300 ? 800 : img.width;
+                        canvas.height = img.height < 300 ? 800 : img.height;
+                        const context = canvas.getContext('2d');
+                        context.clearRect(0, 0, canvas.width, canvas.height);
+                        this.drawImageAtMaxSize(context, img, 0, 0, canvas.width, canvas.height);
+                        this.resultUrl =canvas.toDataURL();
+                        this.currentFileSrc = '';
+                        this.currentFile = null;
+                        this.isConverting = false;
+                        break;
                     default:
                         this.isConverting = false;
                 }
@@ -160,6 +174,17 @@ export default defineComponent({
         },
         stringToDataUrl(buffer, type) {
             return 'data:' + type + ';base64,' + buffer;
+        },
+        drawImageAtMaxSize(ctx, image, x, y, rectW, rectH) {
+            var ratio = image.height / image.width;
+            var w = rectW;
+            var h = rectH;
+            if (rectW * ratio > rectH) {
+                w = Math.floor(h / ratio);
+            } else {
+                h = Math.floor(w * ratio);
+            }
+            ctx.drawImage(image, x + Math.floor((rectW - w) / 2), y + Math.floor((rectH - h) / 2), w, h);
         }
     },
     computed: {
@@ -190,6 +215,8 @@ export default defineComponent({
                     ]
                 case 'webm':
                     return ['gif']
+                case 'svg':
+                    return ['png']
             }
         },
         computeResultFileName() {
@@ -227,6 +254,9 @@ export default defineComponent({
     font-size: 2em;
     height: 100%;
     font-family: 'Brush Script MT', cursive;
+}
+.media{
+    min-width: 20vw;
 }
 
 .convertButtonList {
