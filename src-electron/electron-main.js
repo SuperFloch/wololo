@@ -65,30 +65,6 @@ app.on('activate', () => {
 ipcMain.handle('folder:read', async(e, data) => {
     return await folderTool.readFolder(folderTool.getBaseFolderUrl() + '/' + data)
 })
-ipcMain.handle('img:get', async(e, data) => {
-    return await folderTool.readFile(data)
-})
-ipcMain.handle('img:convert:webp', async(e, data) => {
-    return await folderTool.readFile(await ImageTool.convertImageToWebp(data.img))
-})
-ipcMain.handle('img:convert:gif', async(e, data) => {
-    return await folderTool.readFile(await ImageTool.convertToGif(data.img))
-})
-ipcMain.handle('img:convert:webm', async(e, data) => {
-    return await folderTool.readFile(await ImageTool.convertGifToVideo(data.img))
-})
-ipcMain.handle('img:convert:mp4', async(e, data) => {
-    return await folderTool.readFile(await ImageTool.convertGifToVideo(data.img, 'mp4'))
-})
-ipcMain.handle('img:convert:ico', async(e, data) => {
-    return await folderTool.readFile(await ImageTool.convertPngToIco(data.img))
-})
-ipcMain.handle('img:convert:heicTojpg', async(e, data) => {
-    return await folderTool.readFile(await ImageTool.convertHeicToJpg(data.img))
-})
-ipcMain.handle('webm:resize', async(e, data) => {
-    return await ImageTool.resizeWebm(data.img)
-})
 ipcMain.handle('video:clip', async(e, data) => {
     const fileUrl = await ImageTool.clipVideo(data.video, data.startTime, data.duration)
     if (fileUrl) {
@@ -103,8 +79,41 @@ ipcMain.handle('video:crop', async(e, data) => {
     }
     return null
 })
-ipcMain.handle('img:getFrames', async(e, data) => {
-    return await ImageTool.convertWebpToWebm(data.img);
+
+// Poit d'entrée général pour toutes les conversions
+// data -> {file: [file], inputExt: [png, jpg, ...], outputExt: [png, jpg, ...]}
+ipcMain.handle('file:convert', async(e, data) => {
+    let fileUrl
+    try {
+        switch (data.outputExt) {
+            case 'mp4':
+            case 'webm':
+                if (data.inputExt === 'webp') {
+                    fileUrl = await ImageTool.convertWebpToWebm(data.img)
+                } else {
+                    fileUrl = await ImageTool.convertGifToVideo(data.file, data.outputExt)
+                }
+                break;
+            case 'gif':
+                fileUrl = await ImageTool.convertToGif(data.file)
+                break;
+            case 'ico':
+                fileUrl = await ImageTool.convertPngToIco(data.file)
+                break;
+            case 'jpg':
+                fileUrl = await ImageTool.convertHeicToJpg(data.file)
+                break;
+            case 'webp':
+                fileUrl = await ImageTool.convertImageToWebp(data.file)
+                break;
+        }
+        if (fileUrl) {
+            return await folderTool.readFile(fileUrl)
+        }
+        return { error: 'Conversion failed' }
+    } catch (e) {
+        return { error: 'Conversion failed: ' + e.message }
+    }
 })
 ipcMain.handle('file:read', async(e, data) => {
     return await folderTool.readFile(data.path);

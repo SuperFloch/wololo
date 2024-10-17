@@ -76,14 +76,20 @@ export default defineComponent({
             try {
                 this.resultUrl = null;
                 this.isConverting = true;
+                const fileExt = this.currentFileSrc.split('.').slice(-1)
                 switch (format) {
                     case 'webp':
-                        window.ipcRenderer.invoke('img:convert:webp', { img: this.currentFileSrc }).then((newPath) => {
-                            if (newPath) {
+                    case 'ico':
+                    case 'gif':
+                    case 'jpg':
+                        window.ipcRenderer.invoke('file:convert', { file: this.currentFileSrc, inputExt: fileExt, outputExt: format }).then((newPath) => {
+                            if (newPath.error) {
+                                this.$emit('error', newPath.error);
+                            } else {
                                 this.currentFileSrc = '';
                                 this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'image/webp');
-                                this.resultExtension = 'webp';
+                                this.resultUrl = this.stringToDataUrl(newPath, 'image/' + format);
+                                this.resultExtension = format;
                             }
                             this.isConverting = false;
                         }).catch(err => {
@@ -93,54 +99,14 @@ export default defineComponent({
                         break;
                     case 'mp4':
                     case 'webm':
-                        window.ipcRenderer.invoke('img:convert:' + format, { img: this.currentFileSrc }).then((newPath) => {
-                            if (newPath) {
+                        window.ipcRenderer.invoke('file:convert', { file: this.currentFileSrc, inputExt: fileExt, outputExt: format }).then((newPath) => {
+                            if (newPath.error) {
+                                this.$emit('error', newPath.error);
+                            } else {
                                 this.currentFileSrc = '';
                                 this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'video/' + format);
+                                this.resultUrl = this.stringToDataUrl(newPath, 'image/' + format);
                                 this.resultExtension = format;
-                            }
-                            this.isConverting = false;
-                        }).catch(err => {
-                            this.isConverting = false;
-                            this.$emit('error', err.message);
-                        });
-                        break;
-                    case 'ico':
-                        window.ipcRenderer.invoke('img:convert:ico', { img: this.currentFileSrc }).then((newPath) => {
-                            if (newPath) {
-                                this.currentFileSrc = '';
-                                this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'image/ico');
-                                this.resultExtension = 'ico';
-                            }
-                            this.isConverting = false;
-                        }).catch(err => {
-                            this.isConverting = false;
-                            this.$emit('error', err.message);
-                        });
-                        break;
-                    case 'gif':
-                        window.ipcRenderer.invoke('img:convert:gif', { img: this.currentFileSrc }).then((newPath) => {
-                            if (newPath) {
-                                this.currentFileSrc = '';
-                                this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'image/gif');
-                                this.resultExtension = 'gif';
-                            }
-                            this.isConverting = false;
-                        }).catch(err => {
-                            this.isConverting = false;
-                            this.$emit('error', err.message);
-                        });
-                        break;
-                    case 'jpg':
-                        window.ipcRenderer.invoke('img:convert:heicTojpg', { img: this.currentFileSrc }).then((newPath) => {
-                            if (newPath) {
-                                this.currentFileSrc = '';
-                                this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'image/jpg');
-                                this.resultExtension = 'jpg';
                             }
                             this.isConverting = false;
                         }).catch(err => {
@@ -156,7 +122,7 @@ export default defineComponent({
                         const context = canvas.getContext('2d');
                         context.clearRect(0, 0, canvas.width, canvas.height);
                         this.drawImageAtMaxSize(context, img, 0, 0, canvas.width, canvas.height);
-                        this.resultUrl =canvas.toDataURL();
+                        this.resultUrl = canvas.toDataURL();
                         this.currentFileSrc = '';
                         this.currentFile = null;
                         this.isConverting = false;
@@ -166,7 +132,7 @@ export default defineComponent({
                 }
             } catch (error) {
                 this.isConverting = false;
-                this.$emit('error', err.message);
+                this.$emit('error', error.message);
             }
         },
         onLoad() {
@@ -255,7 +221,8 @@ export default defineComponent({
     height: 100%;
     font-family: 'Brush Script MT', cursive;
 }
-.media{
+
+.media {
     min-width: 20vw;
 }
 
