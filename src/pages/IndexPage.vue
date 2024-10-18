@@ -2,6 +2,7 @@
   <q-header elevated style="background-image:url('img/frise.jpg')">
     <span>Wololo</span>
     <div class="fixed-top-right">
+      <q-btn round :icon="muted ? 'volume_off' : 'volume_up'" color="blue" size="sm" glossy class="q-mr-sm" @click="toggleSound" title="Mute"></q-btn>
       <q-btn round icon="wash" color="orange" size="sm" glossy class="q-mr-sm" @click="clear" title="Clear cache"></q-btn>
       <q-btn round icon="close" color="red" size="sm" glossy @click="quit"></q-btn>
     </div>
@@ -19,19 +20,19 @@
     <div>
         <q-tab-panels v-model="tab" animated class="text-white main">
             <q-tab-panel name="convert">
-              <ConvertPage @error="toast"></ConvertPage>
+              <ConvertPage @error="toast" :muted="muted"></ConvertPage>
             </q-tab-panel>
             <q-tab-panel name="videoClip">
-              <VideoClipPage @error="toast"></VideoClipPage>
+              <VideoClipPage @error="toast" :muted="muted"></VideoClipPage>
             </q-tab-panel>
             <q-tab-panel name="videoCrop">
-              <VideoCropPage @error="toast"></VideoCropPage>
+              <VideoCropPage @error="toast" :muted="muted"></VideoCropPage>
             </q-tab-panel>
             <q-tab-panel name="ytTool">
-              <VideoDownloadPage @error="toast"></VideoDownloadPage>
+              <VideoDownloadPage @error="toast" :muted="muted"></VideoDownloadPage>
             </q-tab-panel>
             <q-tab-panel name="removeBg">
-              <RemoveBgPage @error="toast"></RemoveBgPage>
+              <RemoveBgPage @error="toast" :muted="muted"></RemoveBgPage>
             </q-tab-panel>
           </q-tab-panels>
       </div>
@@ -66,7 +67,8 @@ export default defineComponent({
   data(){
     return {
       lastError: null,
-      lastInfo: null
+      lastInfo: null,
+      muted: false
     }
   },
   setup () {
@@ -93,6 +95,9 @@ export default defineComponent({
       window.ipcRenderer.invoke('clear').then(()=>{
         this.toast('Cache cleared', false)
       })
+    },
+    toggleSound(){
+      this.muted = !this.muted
     }
   }
 })

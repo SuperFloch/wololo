@@ -8,7 +8,7 @@
                 <q-btn color="indigo-10 glossy downBtn" @click="downloadAudio">Download Audio Only</q-btn>
             </div>
             <div class="col-2 monkCol">
-                <MonkAnimation :converting="isConverting" :ready="videoUrl !== ''" ref="monk"></MonkAnimation>
+                <MonkAnimation :converting="isConverting" :ready="videoUrl !== ''" ref="monk" :muted="muted"></MonkAnimation>
             </div>
         </div>
         <div class="row" v-show="resultUrl !== null">
@@ -27,6 +27,9 @@ import MonkAnimation from './MonkAnimation.vue';
 export default {
     components: {
         MonkAnimation
+    },
+    props:{
+        muted: Boolean
     },
     data() {
         return {

@@ -8,7 +8,7 @@
                         <MediaDisplayer :src="filePreviewSrc" :class="{ 'hidden': currentFileSrc == '' }" ref="media" :autoplay="false" :loop="true" :start="start" :end="end"></MediaDisplayer>
                     </div>
                     <div class="col-2">
-                        <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+                        <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
                     </div>
                 </div>
             </div>
@@ -46,6 +46,9 @@ export default {
             end: 100,
             outFormat: ''
         }
+    },
+    props:{
+        muted: Boolean
     },
     emits:['error'],
     components:{

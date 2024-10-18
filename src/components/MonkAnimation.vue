@@ -4,11 +4,11 @@
         <img src="img/heal.png" v-if="!converting">
     </div>
     <div class="hidden">
-        <audio src="sound/5031.wav" ref="monastery"></audio>
-        <audio src="sound/5494.wav" ref="convert1" loop></audio>
-        <audio src="sound/5495.wav" ref="convert2" loop></audio>
-        <audio src="sound/5497.wav" ref="heal"></audio>
-        <audio src="sound/deathSounds.mp3" ref="death"></audio>
+        <audio src="sound/5031.wav" ref="monastery" :muted="muted"></audio>
+        <audio src="sound/5494.wav" ref="convert1" :muted="muted" loop></audio>
+        <audio src="sound/5495.wav" ref="convert2" :muted="muted" loop></audio>
+        <audio src="sound/5497.wav" ref="heal" :muted="muted"></audio>
+        <audio src="sound/deathSounds.mp3" ref="death" :muted="muted"></audio>
     </div>
 </template>
 <script>
@@ -17,7 +17,8 @@ import { defineComponent } from 'vue'
 export default defineComponent({
     props:{
         ready: Boolean,
-        converting: Boolean
+        converting: Boolean,
+        muted: Boolean
     },
     watch:{
         converting: function(newVal, oldVal) { // watch it

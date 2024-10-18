@@ -7,7 +7,7 @@
             </div>
             <div ref="monk" class="col-4">
                 <div class="monk">
-                    <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+                    <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
                 </div>
                 <div class="row resultLine flex-center" v-show="resultUrl != null">
                     <div class="downloadSuccessText">Conversion Succeded !</div>
@@ -43,6 +43,9 @@ export default defineComponent({
     components: {
         MediaDisplayer,
         MonkAnimation
+    },
+    props:{
+        muted: Boolean
     },
     emits: ['error'],
     data: function () {

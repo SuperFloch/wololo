@@ -16,7 +16,7 @@
                         </div>
                     </div>
                     <div class="col-2">
-                        <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+                        <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
                     </div>
                 </div>
             </div>
@@ -49,6 +49,9 @@ export default {
             cropW: 50,
             cropH: 50
         }
+    },
+    props:{
+        muted: Boolean
     },
     components:{
         MediaDisplayer,

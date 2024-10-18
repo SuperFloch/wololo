@@ -8,7 +8,7 @@
             </div>
             <div ref="monk" class="col-2">
                 <div class="monk">
-                    <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''"></MonkAnimation>
+                    <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
                 </div>
             </div>
         </div>
@@ -38,6 +38,9 @@ export default defineComponent({
     components: {
         MediaDisplayer,
         MonkAnimation
+    },
+    props:{
+        muted: Boolean
     },
     emits:['error'],
     data: function(){
