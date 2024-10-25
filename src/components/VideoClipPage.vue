@@ -98,8 +98,8 @@ export default {
             const duration =  Math.abs(startTime - this.end / 100 * this.$refs.media.getDuration())
             window.ipcRenderer.invoke('video:clip', {video: this.currentFileSrc, startTime, duration}).then((newPath)=>{
                 if(newPath){
-                    this.currentFileSrc = '';
-                    this.currentFile = null;
+                    // this.currentFileSrc = '';
+                    // this.currentFile = null;
                     this.resultUrl = this.stringToDataUrl(newPath, 'video/' + this.outFormat);
                 }
                 this.isConverting = false;

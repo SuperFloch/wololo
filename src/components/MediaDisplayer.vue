@@ -159,5 +159,7 @@ export default defineComponent({
 }
 img, video{
     display: block;
+    min-width: 100%;
+    max-height: 50vh;
 }
 </style>

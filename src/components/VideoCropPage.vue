@@ -84,8 +84,8 @@ export default {
             const h = Math.floor(this.cropH / 100 * rect.height);
             window.ipcRenderer.invoke('video:crop', {video: this.currentFileSrc, x, y, w, h}).then((newPath)=>{
                 if(newPath){
-                    this.currentFileSrc = '';
-                    this.currentFile = null;
+                    // this.currentFileSrc = '';
+                    // this.currentFile = null;
                     this.resultUrl = this.stringToDataUrl(newPath, 'video/' + this.outFormat);
                 }
                 this.isConverting = false;
