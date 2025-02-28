@@ -68,14 +68,14 @@ ipcMain.handle('folder:read', async(e, data) => {
 ipcMain.handle('video:clip', async(e, data) => {
     const fileUrl = await ImageTool.clipVideo(data.video, data.startTime, data.duration)
     if (fileUrl) {
-        return await folderTool.readFile(fileUrl)
+        return { data: await folderTool.readFile(fileUrl), path: fileUrl }
     }
     return null
 })
 ipcMain.handle('video:crop', async(e, data) => {
     const fileUrl = await ImageTool.cropVideo(data.video, data.x, data.y, data.w, data.h)
     if (fileUrl) {
-        return await folderTool.readFile(fileUrl)
+        return { data: await folderTool.readFile(fileUrl), path: fileUrl }
     }
     return null
 })
@@ -108,7 +108,7 @@ ipcMain.handle('file:convert', async(e, data) => {
                 break;
         }
         if (fileUrl) {
-            return await folderTool.readFile(fileUrl)
+            return { data: await folderTool.readFile(fileUrl), path: fileUrl }
         }
         return { error: 'Conversion failed' }
     } catch (e) {
@@ -117,6 +117,9 @@ ipcMain.handle('file:convert', async(e, data) => {
 })
 ipcMain.handle('file:read', async(e, data) => {
     return await folderTool.readFile(data.path);
+})
+ipcMain.handle('file:delete', async(e, path) => {
+    return folderTool.deleteFile(path);
 })
 ipcMain.on('img:rename', (e, data) => {
     folderTool.renameFile(data.oldPath, data.newPath)
@@ -130,20 +133,21 @@ ipcMain.handle('img:upload', (e, data) => {
 ipcMain.handle('video:download', async(e, data) => {
     const file = await videoDownloadTool.downloadVideo(data.url)
     if (file) {
-        return await folderTool.readFile(file)
+        return { data: await folderTool.readFile(file), path: file }
     }
-    return null
+    return { error: 'Download failed' }
 })
 ipcMain.handle('audio:download', async(e, data) => {
     const file = await videoDownloadTool.downloadAudio(data.url)
     if (file) {
-        return await folderTool.readFile(file)
+        return { data: await folderTool.readFile(file), path: file }
     }
-    return null
+    return { error: 'Download failed' }
 })
 ipcMain.handle('img:remove-bg', async(e, data) => {
     const imgTool = new ImageTool(folderTool)
-    return await folderTool.readFile(await imgTool.removeImageBackground(data.img))
+    const dataPath = await imgTool.removeImageBackground(data.img)
+    return { data: await folderTool.readFile(dataPath), path: dataPath }
 })
 ipcMain.handle('clear', async(e) => {
     return await folderTool.clearFolder()

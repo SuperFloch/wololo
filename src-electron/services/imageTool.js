@@ -43,7 +43,7 @@ class ImageTool {
                 resUrl = resUrl.split('/input/').join('/output/');
                 const result = webp.cwebp(imagePath, resUrl, "-q 80", "-v");
                 result.then((response) => {
-                    fs.unlinkSync(imagePath);
+                    // fs.unlinkSync(imagePath);
                     resolve(resUrl);
                     console.log(response);
                 });
@@ -83,7 +83,7 @@ class ImageTool {
                 .size('720x?')
                 .on("end", (e) => {
                     console.log("Generated !");
-                    fs.unlinkSync(imagePath);
+                    // fs.unlinkSync(imagePath);
                     ffmpeg.kill();
                     resolve(imagePath.split('.')[0] + "1.webm");
                 })
@@ -106,7 +106,7 @@ class ImageTool {
                 .setDuration(duration)
                 .on("end", (e) => {
                     console.log("Generated !");
-                    fs.unlinkSync(videoPath);
+                    // fs.unlinkSync(videoPath);
                     ffmpeg.kill();
                     resolve(outName);
                 })
@@ -136,7 +136,7 @@ class ImageTool {
                 }, ])
                 .on("end", (e) => {
                     console.log("Generated !");
-                    fs.unlinkSync(videoPath);
+                    // fs.unlinkSync(videoPath);
                     ffmpeg.kill();
                     resolve(outName);
                 })
@@ -159,7 +159,7 @@ class ImageTool {
                 .size('720x?')
                 .on("end", (e) => {
                     console.log("Generated !");
-                    fs.unlinkSync(imagePath);
+                    // fs.unlinkSync(imagePath);
                     ffmpeg.kill();
                     resolve(resUrl);
                 })
@@ -179,7 +179,7 @@ class ImageTool {
                 .output(resUrl)
                 .on("end", (e) => {
                     console.log("Generated !");
-                    fs.unlinkSync(imagePath);
+                    // fs.unlinkSync(imagePath);
                     ffmpeg.kill();
                     resolve(resUrl);
                 })

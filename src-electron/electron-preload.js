@@ -48,6 +48,7 @@ const ipc = {
             'folder:create',
             'folder:read',
             'file:read',
+            'file:delete',
             'file:convert',
             'img:upload',
             'img:remove-bg',

@@ -2,17 +2,16 @@
     <div class="p-relative">
         <div class="row convertLine">
             <div ref="input" class="col-4">
-                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" />
-                <MediaDisplayer :src="filePreviewSrc" :class="{ 'hidden': currentFileSrc == '' }" ref="media" @load="onLoad" class="media"></MediaDisplayer>
+                <MediaDisplayer v-if="inputFile != null" :src="inputFile.data" ref="media" @load="onLoad"></MediaDisplayer>
             </div>
             <div ref="monk" class="col-4">
                 <div class="monk">
-                    <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
+                    <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
                 </div>
-                <div class="row resultLine flex-center" v-show="resultUrl != null">
+                <div class="row resultLine flex-center" v-if="resultFile != null">
                     <div class="downloadSuccessText">Conversion Succeded !</div>
                     <div class="col-12">
-                        <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultUrl" :download="computeResultFileName">Save</a>
+                        <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultFile.data" :download="computeResultFileName">Save</a>
                     </div>
                 </div>
             </div>
@@ -45,73 +44,45 @@ export default defineComponent({
         MonkAnimation
     },
     props:{
-        muted: Boolean
+        muted: Boolean,
+        inputFile: {
+            type: Object,
+            default: () =>{ return null}
+        }
     },
-    emits: ['error'],
+    emits: ['error', 'output'],
     data: function () {
         return {
-            currentFile: null,
-            currentFileSrc: '',
-            filePreviewSrc: '',
             isConverting: false,
             isActiveIco: false,
-            resultUrl: null,
-            resultExtension: ''
+            resultExtension: '',
+
+            resultFile: null
         }
     },
     methods: {
-        async addFile() {
-            this.currentFileSrc = '';
-            this.resultUrl = null;
-            const file = this.currentFile;
-            const data = await file.arrayBuffer();
-            const reader = new FileReader();
-            reader.addEventListener('load', () => {
-                this.filePreviewSrc = reader.result;
-            }, false);
-            reader.readAsDataURL(file);
-            var imgName = "input_" + Math.floor(Math.random() * 500) + "." + file.name.split('.').slice(-1);
-            window.ipcRenderer.invoke('img:upload', { path: imgName, buffer: data }).then((upPath) => {
-                this.currentFileSrc = upPath;
-            });
-        },
         convert(format) {
             try {
-                this.resultUrl = null;
+                this.resultFile = null;
                 this.isConverting = true;
-                const fileExt = this.currentFileSrc.split('.').slice(-1)
+                const fileExt = this.inputFile.path.split('.').slice(-1)[0]
                 switch (format) {
                     case 'webp':
                     case 'ico':
                     case 'gif':
-                    case 'jpg':
-                        window.ipcRenderer.invoke('file:convert', { file: this.currentFileSrc, inputExt: fileExt, outputExt: format }).then((newPath) => {
-                            if (newPath.error) {
-                                this.$emit('error', newPath.error);
-                            } else {
-                                this.currentFileSrc = '';
-                                this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'image/' + format);
-                                this.resultExtension = format;
-                            }
-                            this.isConverting = false;
-                        }).catch(err => {
-                            this.isConverting = false;
-                            this.$emit('error', err.message);
-                        });
-                        break;
                     case 'mp4':
                     case 'webm':
-                        window.ipcRenderer.invoke('file:convert', { file: this.currentFileSrc, inputExt: fileExt, outputExt: format }).then((newPath) => {
-                            if (newPath.error) {
-                                this.$emit('error', newPath.error);
+                    case 'jpg':
+                        window.ipcRenderer.invoke('file:convert', { file: this.inputFile.path, inputExt: fileExt, outputExt: format }).then((result) => {
+                            if (result.error) {
+                                this.$emit('error', result.error);
                             } else {
-                                this.currentFileSrc = '';
-                                this.currentFile = null;
-                                this.resultUrl = this.stringToDataUrl(newPath, 'image/' + format);
+                                this.resultFile = result
+
                                 this.resultExtension = format;
                             }
                             this.isConverting = false;
+                            this.$emit('output')
                         }).catch(err => {
                             this.isConverting = false;
                             this.$emit('error', err.message);
@@ -125,10 +96,10 @@ export default defineComponent({
                         const context = canvas.getContext('2d');
                         context.clearRect(0, 0, canvas.width, canvas.height);
                         this.drawImageAtMaxSize(context, img, 0, 0, canvas.width, canvas.height);
-                        this.resultUrl = canvas.toDataURL();
-                        this.currentFileSrc = '';
-                        this.currentFile = null;
+
+                        this.resultFile = {data: canvas.toDataURL()}
                         this.isConverting = false;
+                        this.$emit('output')
                         break;
                     default:
                         this.isConverting = false;
@@ -140,9 +111,6 @@ export default defineComponent({
         },
         onLoad() {
             this.isActiveIco = this.$refs.media.isSquare()
-        },
-        stringToDataUrl(buffer, type) {
-            return 'data:' + type + ';base64,' + buffer;
         },
         drawImageAtMaxSize(ctx, image, x, y, rectW, rectH) {
             var ratio = image.height / image.width;
@@ -158,8 +126,8 @@ export default defineComponent({
     },
     computed: {
         computeOutFormats() {
-            if (this.currentFileSrc == '') return [];
-            switch (this.currentFileSrc.split('.').slice(-1)[0].toLowerCase()) {
+            if (this.inputFile == null) return [];
+            switch (this.inputFile.path.split('.').slice(-1)[0].toLowerCase()) {
                 case 'jpg':
                     return [
                         'webp'
@@ -212,21 +180,6 @@ export default defineComponent({
 .monk {
     height: 35vh;
     width: 100%;
-}
-
-.fileInput {
-    background: radial-gradient(circle, rgba(230, 197, 101, 1) 0%, rgba(166, 143, 85, 1) 100%);
-    border: 4mm ridge rgba(60, 83, 146, 0.733);
-}
-
-.fileInput :deep(.q-field__label) {
-    font-size: 2em;
-    height: 100%;
-    font-family: 'Brush Script MT', cursive;
-}
-
-.media {
-    min-width: 20vw;
 }
 
 .convertButtonList {

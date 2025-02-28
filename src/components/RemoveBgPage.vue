@@ -3,28 +3,27 @@
         <div class="row convertLine">
             <div ref="input" class="col-10">
                 <div class="head text-center">Remove the background of an image</div>
-                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" accept="image/*"/>
-                <MediaDisplayer :src="filePreviewSrc" :class="{'hidden' : currentFileSrc == ''}" ref="media" class="media"></MediaDisplayer>
+                <MediaDisplayer :src="inputFile.data" v-if="inputFile != null" ref="media"></MediaDisplayer>
             </div>
             <div ref="monk" class="col-2">
                 <div class="monk">
-                    <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
+                    <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
                 </div>
             </div>
         </div>
         <div class="row justify-center q-mt-md">
-            <q-btn color="indigo-10" @click="convert" :disabled="currentFileSrc == ''" glossy>Remove Background</q-btn>
+            <q-btn color="indigo-10" @click="convert" v-show="inputFile != null" glossy>Remove Background</q-btn>
         </div>
-        <div class="row resultLine flex-center" v-show="resultUrl != null">
+        <div class="row resultLine flex-center" v-if="resultFile != null">
             <div class="col-4"></div>
             <div class="col-4">
                 <div class="downloadSuccessText">Removal Succeded !</div>
             </div>
             <div class="col-4">
-                <img :src="resultUrl" :class="{'hidden' : resultUrl == null}">
+                <img :src="resultFile.data" v-if="resultFile != null">
             </div>
-            <div class="col-12">
-                <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultUrl" :download="'result.png'">Save</a>
+            <div class="col-12" v-if="resultFile != null">
+                <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultFile.data" :download="'result.png'">Save</a>
             </div>
         </div>
     </div>
@@ -40,44 +39,29 @@ export default defineComponent({
         MonkAnimation
     },
     props:{
-        muted: Boolean
+        muted: Boolean,
+        inputFile: {
+            type: Object,
+            default: () =>{ return null}
+        }
     },
     emits:['error'],
     data: function(){
         return {
-            currentFile: null,
-            currentFileSrc:'',
-            filePreviewSrc:'',
             isConverting: false,
-            resultUrl: null,
-            resultExtension:''
+            resultFile: null
         }
     },
     methods:{
-        async addFile(){
-            this.currentFileSrc = '';
-            this.resultUrl = null;
-            const file = this.currentFile;
-            const data = await file.arrayBuffer();
-            const reader = new FileReader();
-            reader.addEventListener('load',()=>{
-                this.filePreviewSrc = reader.result;
-            }, false);
-            reader.readAsDataURL(file);
-            var imgName = "input_"+Math.floor(Math.random() * 500) + "." + file.name.split('.').slice(-1);
-            window.ipcRenderer.invoke('img:upload', {path: imgName, buffer: data}).then((upPath)=>{
-                this.currentFileSrc = upPath;
-            });
-        },
         async convert(){
             try{
-                this.resultUrl = null;
+                this.resultFile = null;
                 this.isConverting = true;
-                window.ipcRenderer.invoke('img:remove-bg', {img: await this.currentFileSrc}).then((newPath)=>{
-                    if(newPath){
-                        this.currentFileSrc = '';
-                        this.currentFile = null;
-                        this.resultUrl = this.stringToDataUrl(newPath, 'image/png');
+                window.ipcRenderer.invoke('img:remove-bg', {img:this.inputFile.path}).then((result)=>{
+                    if(result.error){
+                        this.$emit('error', result.error)
+                    }else{
+                        this.resultFile = result
                     }
                     this.isConverting = false;
                 })
@@ -86,9 +70,6 @@ export default defineComponent({
                 this.isConverting = false;
                 this.$emit('error', error.message);
             }
-        },
-        stringToDataUrl(buffer,type){
-            return 'data:' + type + ';base64,' + buffer;
         }
     }
 })

@@ -2,10 +2,9 @@
     <div class="p-relative">
         <div class="row convertLine">
             <div ref="input" class="col-12">
-                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" accept="video/*"/>
                 <div class="row">
                     <div class="media col-10 p-relative">
-                        <MediaDisplayer :src="filePreviewSrc" :class="{ 'hidden': currentFileSrc == '' }" ref="media" :autoplay="true" :loop="true"></MediaDisplayer>
+                        <MediaDisplayer :src="inputFile.data" v-if="inputFile != null" ref="media" :autoplay="true" :loop="true"></MediaDisplayer>
                         <div class="cadre absolute-center" ref="cadre">
                             <div class="reticula" :style="{'left': cropX+'%', 'top': cropY+'%', 'width': cropW+'%', 'height': cropH+'%'}"></div>
 
@@ -16,19 +15,19 @@
                         </div>
                     </div>
                     <div class="col-2">
-                        <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
+                        <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row q-mt-md justify-center">
             <div class="col-8">
-                <q-btn color="indigo-10 w-100" glossy @click="crop" :disable="currentFileSrc == ''">Crop</q-btn>
+                <q-btn color="indigo-10 w-100" glossy @click="crop" :disable="inputFile == null">Crop</q-btn>
             </div>
         </div>
-        <div class="row" v-show="resultUrl !== null">
+        <div class="row" v-if="resultFile !== null">
             <div class="downloadSuccessText">Crop Succeded !</div>
-            <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-indigo-10 stretch" :href="resultUrl" :download="'result.'+outFormat">Save</a>
+            <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-indigo-10 stretch" :href="resultFile.data" :download="resultFile.path.split('/').slice(-1)[0]">Save</a>
         </div>
     </div>
 </template>
@@ -38,20 +37,20 @@ import MonkAnimation from './MonkAnimation.vue';
 export default {
     data: function(){
         return {
-            currentFile: null,
-            currentFileSrc:'',
-            filePreviewSrc:'',
             isConverting: false,
-            resultUrl: null,
-            outFormat: '',
             cropX: 25,
             cropY: 25,
             cropW: 50,
-            cropH: 50
+            cropH: 50,
+            resultFile: null
         }
     },
     props:{
-        muted: Boolean
+        muted: Boolean,
+        inputFile: {
+            type: Object,
+            default: () =>{ return null}
+        }
     },
     components:{
         MediaDisplayer,
@@ -59,34 +58,20 @@ export default {
     },
     emits:['error'],
     methods:{
-        async addFile(){
-            this.currentFileSrc = '';
-            this.resultUrl = null;
-            const file = this.currentFile;
-            const data = await file.arrayBuffer();
-            const reader = new FileReader();
-            reader.addEventListener('load',()=>{
-                this.filePreviewSrc = reader.result;
-            }, false);
-            reader.readAsDataURL(file);
-            this.outFormat = file.name.split('.').slice(-1)
-            var imgName = "input_"+Math.floor(Math.random() * 500) + "." + file.name.split('.').slice(-1);
-            window.ipcRenderer.invoke('img:upload', {path: imgName, buffer: data}).then((upPath)=>{
-                this.currentFileSrc = upPath;
-            });
-        },
         crop(){
             this.isConverting = true
+            this.resultFile = null
             const rect = {width: this.$refs.media.width, height: this.$refs.media.height}
             const x = Math.floor(this.cropX / 100 * rect.width);
             const y = Math.floor(this.cropY / 100 * rect.height);
             const w = Math.floor(this.cropW / 100 * rect.width);
             const h = Math.floor(this.cropH / 100 * rect.height);
-            window.ipcRenderer.invoke('video:crop', {video: this.currentFileSrc, x, y, w, h}).then((newPath)=>{
-                if(newPath){
-                    // this.currentFileSrc = '';
-                    // this.currentFile = null;
-                    this.resultUrl = this.stringToDataUrl(newPath, 'video/' + this.outFormat);
+            window.ipcRenderer.invoke('video:crop', {video: this.inputFile.path, x, y, w, h}).then((result)=>{
+                if(result.error){
+                    this.$emit('error', result.error);
+                }else{
+                    this.resultFile = result;
+                    this.$emit('output')
                 }
                 this.isConverting = false;
             }).catch(err =>{
@@ -150,9 +135,6 @@ export default {
                     this.cropH = y - this.cropY
                 }
             }
-        },
-        stringToDataUrl(buffer,type){
-            return 'data:' + type + ';base64,' + buffer;
         }
     }
 }

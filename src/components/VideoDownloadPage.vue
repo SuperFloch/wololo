@@ -39,18 +39,20 @@ export default {
             outFormat: 'mp4'
         }
     },
-    emits:['error'],
+    emits:['error', 'output'],
     methods: {
         downloadVideo() {
             this.isConverting = true;
             this.resultUrl = null;
             this.outFormat = 'mp4'
-            window.ipcRenderer.invoke('video:download', { url: this.videoUrl }).then((newPath) => {
-                if (newPath) {
-                    this.resultUrl = this.stringToDataUrl(newPath, 'video/mp4');
-                }else{
+            window.ipcRenderer.invoke('video:download', { url: this.videoUrl }).then((result) => {
+                if (result.error) {
                     this.$refs.monk.deathSound();
+                    
+                }else{
+                    this.resultUrl = result.data;
                 }
+                this.$emit('output')
                 this.isConverting = false;
             }).catch(err => {
                 this.isConverting = false;
@@ -63,12 +65,13 @@ export default {
             this.isConverting = true;
             this.resultUrl = null;
             this.outFormat = 'mp3'
-            window.ipcRenderer.invoke('audio:download', { url: this.videoUrl }).then((newPath) => {
-                if (newPath) {
-                    this.resultUrl = this.stringToDataUrl(newPath, 'audio/mp3');
-                }else{
+            window.ipcRenderer.invoke('audio:download', { url: this.videoUrl }).then((result) => {
+                if (result.error) {
                     this.$refs.monk.deathSound();
+                }else{
+                    this.resultUrl = result.data;
                 }
+                this.$emit('output')
                 this.isConverting = false;
             }).catch(err => {
                 this.isConverting = false;
@@ -76,9 +79,6 @@ export default {
                 this.$emit('error', err.message);
                 this.$refs.monk.deathSound();
             });
-        },
-        stringToDataUrl(buffer,type){
-            return 'data:' + type + ';base64,' + buffer;
         }
     }
 }
@@ -86,6 +86,9 @@ export default {
 <style scoped>
 .pageBody {
     text-align: center;
+}
+.row{
+    width: 100%;
 }
 
 .head {

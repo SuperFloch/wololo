@@ -3,6 +3,10 @@ const { readdir } = require('fs').promises;
 const WORKSPACE_DIR = 'wololo';
 const path = require("path");
 
+const imgFormats = ['jpg', 'gif', 'png', 'webp', 'svg']
+const videoFormats = ['webm', 'avi', 'mp4', 'mov']
+const audioFormats = ['mp3']
+
 class FolderTool {
     constructor(app) {
         this.BASE_PATH = app.getPath('userData');
@@ -72,10 +76,11 @@ class FolderTool {
     async readFile(filePath) {
         return new Promise(async(resolve, error) => {
             try {
-                fs.readFile(filePath, function(err, data) {
+                fs.readFile(filePath, (err, data) => {
                     if (!err) {
                         var ret = Buffer.from(data).toString('base64');
-                        resolve(ret);
+                        var prefix = this.getBase64Prefix(filePath)
+                        resolve(prefix + ret);
                     } else {
                         error(err);
                     }
@@ -85,6 +90,25 @@ class FolderTool {
                 resolve(err);
             }
         });
+    }
+
+    getBase64Prefix(filePath) {
+        const ext = filePath.split('.').slice(-1)[0]
+        if (imgFormats.includes(ext)) {
+            return "data:image/" + ext + ";base64, "
+        } else if (videoFormats.includes(ext)) {
+            return "data:video/" + ext + ";base64, "
+        }else if (audioFormats.includes(ext)) {
+            return "data:audio/" + ext + ";base64, "
+        }
+        return ''
+    }
+
+    deleteFile(filePath) {
+        fs.unlinkSync(filePath, (err) => {
+            if (err) return err;
+        });
+        return true
     }
 
     writeFile(filePath, text) {

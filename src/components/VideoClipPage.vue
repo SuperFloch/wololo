@@ -2,19 +2,18 @@
     <div class="p-relative">
         <div class="row convertLine">
             <div ref="input" class="col-12">
-                <q-file filled v-model="currentFile" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" accept="video/*"/>
                 <div class="row">
                     <div class="media col-10">
-                        <MediaDisplayer :src="filePreviewSrc" :class="{ 'hidden': currentFileSrc == '' }" ref="media" :autoplay="false" :loop="true" :start="start" :end="end"></MediaDisplayer>
+                        <MediaDisplayer :src="inputFile.data" v-if="inputFile != null" ref="media" :autoplay="false" :loop="true" :start="start" :end="end"></MediaDisplayer>
                     </div>
                     <div class="col-2">
-                        <MonkAnimation :converting="isConverting" :ready="currentFileSrc != ''" :muted="muted"></MonkAnimation>
+                        <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
                     </div>
                 </div>
             </div>
         </div>
         <div>
-            <div class="gauge" ref="gauge" v-show="currentFileSrc != ''">
+            <div class="gauge" ref="gauge" v-show="inputFile != null">
                 <div class="bar" :style="{'left': start+'%', 'width': (end-start)+'%'}"></div>
                 <div ref="slideStart" class="slider" :style="{'left': start+'%'}" @drag="onDragStart"></div>
                 <div ref="slideEnd" class="slider" :style="{'left': end+'%'}" @drag="onDragEnd"></div>
@@ -22,12 +21,12 @@
         </div>
         <div class="row q-mt-md justify-center">
             <div class="col-8">
-                <q-btn color="indigo-10 w-100" glossy @click="clip" :disabled="currentFileSrc === ''">Clip</q-btn>
+                <q-btn color="indigo-10 w-100" glossy @click="clip" :disabled="inputFile === null">Clip</q-btn>
             </div>
         </div>
-        <div class="row" v-show="resultUrl !== null">
+        <div class="row" v-if="resultFile != null">
             <div class="downloadSuccessText">Clip Succeded !</div>
-            <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-indigo-10 stretch" :href="resultUrl" :download="'result.'+outFormat">Save</a>
+            <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-indigo-10 stretch" :href="resultFile.data" :download="resultFile.path.split('/').slice(-1)[0]">Save</a>
         </div>
     </div>
 </template>
@@ -37,41 +36,25 @@ import MonkAnimation from './MonkAnimation.vue';
 export default {
     data: function(){
         return {
-            currentFile: null,
-            currentFileSrc:'',
-            filePreviewSrc:'',
             isConverting: false,
-            resultUrl: null,
             start: 0,
             end: 100,
-            outFormat: ''
+            resultFile: null
         }
     },
     props:{
-        muted: Boolean
+        muted: Boolean,
+        inputFile: {
+            type: Object,
+            default: () =>{ return null}
+        }
     },
-    emits:['error'],
+    emits:['error', 'output'],
     components:{
         MediaDisplayer,
         MonkAnimation
     },
     methods:{
-        async addFile(){
-            this.currentFileSrc = '';
-            this.resultUrl = null;
-            const file = this.currentFile;
-            const data = await file.arrayBuffer();
-            const reader = new FileReader();
-            reader.addEventListener('load',()=>{
-                this.filePreviewSrc = reader.result;
-            }, false);
-            reader.readAsDataURL(file);
-            this.outFormat = file.name.split('.').slice(-1)
-            var imgName = "input_"+Math.floor(Math.random() * 500) + "." + file.name.split('.').slice(-1);
-            window.ipcRenderer.invoke('img:upload', {path: imgName, buffer: data}).then((upPath)=>{
-                this.currentFileSrc = upPath;
-            });
-        },
         onDragStart(e){
             if(e.clientX > 0){
                 const rect = this.$refs.gauge.getBoundingClientRect()
@@ -93,14 +76,16 @@ export default {
             }
         },
         async clip(){
+            this.resultFile = null
             this.isConverting = true
             const startTime = this.start / 100 * this.$refs.media.getDuration()
             const duration =  Math.abs(startTime - this.end / 100 * this.$refs.media.getDuration())
-            window.ipcRenderer.invoke('video:clip', {video: this.currentFileSrc, startTime, duration}).then((newPath)=>{
-                if(newPath){
-                    // this.currentFileSrc = '';
-                    // this.currentFile = null;
-                    this.resultUrl = this.stringToDataUrl(newPath, 'video/' + this.outFormat);
+            window.ipcRenderer.invoke('video:clip', {video: this.inputFile.path, startTime, duration}).then((result)=>{
+                if(result.error){
+                    this.$emit('error', result.error);
+                }else{
+                    this.resultFile = result;
+                    this.$emit('output')
                 }
                 this.isConverting = false;
             }).catch(err =>{
@@ -108,9 +93,6 @@ export default {
                 console.log(err.message)
                 this.$emit('error', err.message);
             });
-        },
-        stringToDataUrl(buffer,type){
-            return 'data:' + type + ';base64,' + buffer;
         }
     }
 }
