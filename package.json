@@ -13,7 +13,7 @@
         "build": "quasar build"
     },
     "dependencies": {
-        "@distube/ytdl-core": "^4.13.5",
+        "@distube/ytdl-core": "^4.16.4",
         "@electron/remote": "^2.1.1",
         "@imgly/background-removal-node": "^1.4.5",
         "@quasar/extras": "^1.0.0",
@@ -24,6 +24,7 @@
         "node-webpmux": "^3.1.8",
         "png-to-ico": "^2.1.8",
         "quasar": "^2.6.0",
+        "undici": "^7.5.0",
         "vue": "^3.0.0",
         "vue-router": "^4.0.0",
         "webp-converter": "^2.3.3",
