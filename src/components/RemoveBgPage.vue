@@ -1,22 +1,24 @@
 <template>
-    <div class="removeBgPage">
+    <div class="aoe-page">
         <div class="aoe-title">Remove the background of an image</div>
-        <div class="workRow">
-            <div class="mediaCol">
-                <MediaDisplayer :src="inputFile.data" v-if="inputFile != null" ref="media"></MediaDisplayer>
-                <div v-else class="emptyHint">Load an image to begin</div>
+        <div class="aoe-work">
+            <div class="aoe-media">
+                <MediaDisplayer :src="inputFile.data" v-if="inputFile != null" ref="media" fit></MediaDisplayer>
+                <div v-else class="aoe-empty">Load an image to begin</div>
             </div>
-            <div class="monkCol">
+            <div class="aoe-monk">
                 <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
             </div>
+            <div class="aoe-media resultArea" v-if="resultFile != null">
+                <MediaDisplayer :src="resultFile.data" fit></MediaDisplayer>
+            </div>
         </div>
-        <div class="actionRow">
+        <div class="aoe-actions">
             <q-btn color="indigo-10" class="aoe-btn" @click="convert" :disable="inputFile == null || isConverting" :loading="isConverting" glossy label="Remove Background"></q-btn>
-        </div>
-        <div class="resultBox" v-if="resultFile != null">
-            <div class="aoe-success">Removal Succeded !</div>
-            <div class="resultImg"><img :src="resultFile.data" alt="Result"></div>
-            <q-btn type="a" glossy color="green" class="aoe-btn aoe-save" icon="save" label="Save" :href="resultFile.data" :download="'result.png'"></q-btn>
+            <template v-if="resultFile != null">
+                <div class="aoe-success">Removal Succeded !</div>
+                <q-btn type="a" glossy color="green" class="aoe-btn aoe-save" icon="save" label="Save" :href="resultFile.data" :download="'result.png'"></q-btn>
+            </template>
         </div>
     </div>
 </template>
@@ -65,64 +67,9 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-.workRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-}
-
-.mediaCol {
-    flex: 1 1 16rem;
-    min-width: 0;
-}
-
-.monkCol {
-    flex: 0 1 10rem;
-}
-
-.emptyHint {
-    font-family: var(--aoe-font);
-    font-size: 1.6rem;
-    color: var(--aoe-gold);
-    text-align: center;
-    padding: 2rem 0.5rem;
-    border: 2px dashed var(--aoe-gold-dark);
-    border-radius: 6px;
-}
-
-.actionRow {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-.resultBox {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 2px groove var(--aoe-gold-dark);
-}
-
-.resultBox .aoe-save {
-    max-width: 24rem;
-}
-
-.resultImg {
-    max-width: 100%;
-    padding: 0.5rem;
-    border: 2px ridge var(--aoe-gold-dark);
-    border-radius: 4px;
-    /* damier pour visualiser la transparence */
+/* Damier pour visualiser la transparence du resultat */
+.resultArea {
     background: repeating-conic-gradient(#555 0% 25%, #888 0% 50%) 50% / 20px 20px;
-}
-
-.resultImg img {
-    display: block;
-    max-height: 50vh;
+    border-radius: 6px;
 }
 </style>

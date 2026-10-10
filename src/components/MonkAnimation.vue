@@ -59,7 +59,7 @@ export default defineComponent({
 }
 
 .monkBox img {
-    height: clamp(96px, 22vh, 200px);
+    height: clamp(64px, 20vh, 170px);
     width: auto;
     image-rendering: pixelated;
     transform: scaleX(-1);

@@ -1,17 +1,17 @@
 <template>
     <div class="convertPage">
-        <div class="mediaCol">
-            <MediaDisplayer v-if="inputFile != null" :src="inputFile.data" ref="media" @load="onLoad"></MediaDisplayer>
-            <div v-else class="emptyHint">Load a file to begin</div>
+        <div class="mediaArea aoe-media">
+            <MediaDisplayer v-if="inputFile != null" :src="inputFile.data" ref="media" fit @load="onLoad"></MediaDisplayer>
+            <div v-else class="aoe-empty">Load a file to begin</div>
         </div>
-        <div class="monkCol">
+        <div class="monkArea">
             <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
             <div class="resultBox" v-if="resultFile != null">
                 <div class="aoe-success">Conversion Succeded !</div>
                 <q-btn type="a" glossy color="green" class="aoe-btn aoe-save" icon="save" label="Save" :href="resultFile.data" :download="computeResultFileName"></q-btn>
             </div>
         </div>
-        <div class="formatCol">
+        <div class="formatArea">
             <canvas ref="imgRenderer" hidden></canvas>
             <div class="parcheminWrap">
                 <img src="img/parcheminBg.png" class="parchemin" alt="">
@@ -159,45 +159,49 @@ export default defineComponent({
 </script>
 <style scoped>
 .convertPage {
+    flex: 1 1 0;
+    min-height: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1rem;
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 0.8fr);
+    grid-template-areas: "media monk formats";
+    gap: 0.75rem;
+    align-items: stretch;
 }
 
-.emptyHint {
-    font-family: var(--aoe-font);
-    font-size: 1.6rem;
-    color: var(--aoe-gold);
-    text-align: center;
-    padding: 2rem 0.5rem;
-    border: 2px dashed var(--aoe-gold-dark);
-    border-radius: 6px;
+.mediaArea {
+    grid-area: media;
 }
 
-.monkCol {
+.monkArea {
+    grid-area: monk;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 0;
+    width: clamp(7rem, 16vw, 12rem);
 }
 
 .resultBox {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.4rem;
 }
 
-.formatCol {
+.formatArea {
+    grid-area: formats;
     min-width: 0;
+    min-height: 0;
+    align-self: center;
 }
 
 .parcheminWrap {
     position: relative;
     overflow: hidden;
-    min-height: 8rem;
-    padding: 4rem 1.5rem 1rem;
+    padding: clamp(2.5rem, 7vh, 4rem) 1rem 0.5rem;
 }
 
 .parchemin {
@@ -215,20 +219,20 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.4rem;
 }
 
 .listTitle {
     font-family: var(--aoe-font);
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-size: 1.7rem;
     color: rgba(16, 41, 111, 0.85);
     text-align: center;
 }
 
 .convertButton {
     width: 70%;
-    min-width: 7rem;
-    font-size: 1.4rem;
+    min-width: 5rem;
+    font-size: 1.2rem;
     text-transform: uppercase;
 }
 
@@ -240,22 +244,23 @@ export default defineComponent({
     z-index: 2;
 }
 
-@media (max-width: 1099px) {
+/* Etroit : le media en haut, le moine et les formats cote a cote en dessous */
+@media (max-width: 639px) {
     .convertPage {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas: "media media" "monk formats";
     }
 
-    .formatCol {
-        grid-column: 1 / -1;
-        max-width: 24rem;
-        width: 100%;
+    .monkArea {
+        width: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .formatArea {
         justify-self: center;
-    }
-}
-
-@media (max-width: 599px) {
-    .convertPage {
-        grid-template-columns: minmax(0, 1fr);
+        width: min(100%, 13rem);
     }
 }
 </style>

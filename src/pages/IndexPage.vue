@@ -12,7 +12,7 @@
       <file-manager @change="onMainFileChange" ref="fileManager"></file-manager>
     </div>
     <div class="convertPart">
-      <q-tabs v-model="tab" class="aoeTabs" active-color="indigo-10" active-bg-color="amber-5" indicator-color="indigo-10" mobile-arrows no-caps>
+      <q-tabs v-model="tab" class="aoeTabs" active-color="indigo-10" active-bg-color="amber-5" indicator-color="indigo-10" mobile-arrows no-caps dense inline-label>
         <q-tab name="convert" icon="church" label="Conversion" />
         <q-tab name="videoClip" icon="movie" label="Video Clip" />
         <q-tab name="videoCrop" icon="crop" label="Video Crop" />
@@ -114,29 +114,32 @@ export default defineComponent({
 })
 </script>
 <style scoped>
+/* La page occupe exactement la fenetre : seule la liste de fichiers defile */
 .pageBody {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  height: calc(100vh - var(--header-h));
+  min-height: 0 !important;
+  overflow: hidden;
 }
 
 .sideBar {
-  flex: 0 0 clamp(220px, 24vw, 320px);
-  position: sticky;
-  top: 66px;
-  max-height: calc(100vh - 82px);
-  overflow-y: auto;
+  flex: 0 0 clamp(190px, 22vw, 300px);
+  min-height: 0;
 }
 
 .convertPart {
   flex: 1 1 0;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .main {
-  background-color: var(--aoe-panel-bg);
-  min-height: 50vh;
+  flex: 1 1 0;
+  min-height: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
@@ -144,16 +147,20 @@ export default defineComponent({
 .aoeHeader {
   background-size: cover;
   background-position: center;
-  border-bottom: 3px ridge var(--aoe-gold-dark);
 }
 
 .aoeToolbar {
+  min-height: var(--header-h);
+  height: var(--header-h);
   background: rgba(0, 0, 0, 0.35);
+  border-bottom: 3px ridge var(--aoe-gold-dark);
+  box-sizing: border-box;
 }
 
 .aoeLogo {
   font-family: var(--aoe-font);
-  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-size: 2.4rem;
+  line-height: 1;
   color: var(--aoe-gold);
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
   text-align: center;
@@ -161,6 +168,7 @@ export default defineComponent({
 }
 
 .aoeTabs {
+  flex: 0 0 auto;
   background: linear-gradient(180deg, #fff3c4, #ffe082);
   color: var(--aoe-blue);
   border: 3px ridge var(--aoe-gold-dark);
@@ -172,10 +180,10 @@ export default defineComponent({
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 1.5rem;
+  bottom: 1rem;
   transform: translateX(-50%);
   width: min(90vw, 28rem);
-  padding: 0.6rem 1rem;
+  padding: 0.4rem 1rem;
   text-align: center;
   color: #fff;
   border: 3px ridge var(--aoe-gold-dark);
@@ -188,7 +196,8 @@ export default defineComponent({
 
 .toastTitle {
   font-family: var(--aoe-font);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  line-height: 1.1;
   color: var(--aoe-gold);
 }
 
@@ -200,23 +209,26 @@ export default defineComponent({
   background-color: rgba(28, 42, 115, 0.95);
 }
 
-/* Écrans étroits : la liste de fichiers passe au-dessus du contenu */
-@media (max-width: 899px) {
+/* Fenetre etroite : la liste de fichiers passe au-dessus du contenu */
+@media (max-width: 639px) {
   .pageBody {
     flex-direction: column;
-    align-items: stretch;
     padding: 0.5rem;
+    gap: 0.5rem;
   }
 
   .sideBar {
-    flex: none;
-    position: static;
-    max-height: 40vh;
+    flex: 0 0 clamp(150px, 30vh, 240px);
   }
 
   .aoeLogo {
     padding-left: 0;
     text-align: left;
+  }
+
+  /* Onglets : icones seules */
+  .aoeTabs :deep(.q-tab__label) {
+    display: none;
   }
 }
 </style>

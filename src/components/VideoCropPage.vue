@@ -1,9 +1,8 @@
 <template>
-    <div class="cropPage">
-        <div class="workRow">
-            <div class="mediaCol">
-                <div class="cropStage" v-if="inputFile != null">
-                    <MediaDisplayer :src="inputFile.data" ref="media" :autoplay="true" :loop="true"></MediaDisplayer>
+    <div class="aoe-page">
+        <div class="aoe-work">
+            <div class="aoe-media">
+                <MediaDisplayer v-if="inputFile != null" :src="inputFile.data" ref="media" fit :autoplay="true" :loop="true">
                     <div class="cadre" ref="cadre">
                         <div class="shade">
                             <div class="reticula" :style="{'left': cropX+'%', 'top': cropY+'%', 'width': cropW+'%', 'height': cropH+'%'}"></div>
@@ -11,19 +10,19 @@
                         <div v-for="c in corners" :key="c.name" class="slider" :style="{'left': (cropX + (c.right ? cropW : 0))+'%', 'top': (cropY + (c.bottom ? cropH : 0))+'%'}"
                             @pointerdown="grab" @pointermove="onDragCorner($event, c)" @pointerup="release" @pointercancel="release"></div>
                     </div>
-                </div>
-                <div v-else class="emptyHint">Load a video to begin</div>
+                </MediaDisplayer>
+                <div v-else class="aoe-empty">Load a video to begin</div>
             </div>
-            <div class="monkCol">
+            <div class="aoe-monk">
                 <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
             </div>
         </div>
-        <div class="actionRow">
+        <div class="aoe-actions">
             <q-btn color="indigo-10" class="aoe-btn" glossy @click="crop" :disable="inputFile == null || isConverting" :loading="isConverting" label="Crop"></q-btn>
-        </div>
-        <div class="resultBox" v-if="resultFile !== null">
-            <div class="aoe-success">Crop Succeded !</div>
-            <q-btn type="a" glossy color="green" class="aoe-btn aoe-save" icon="save" label="Save" :href="resultFile.data" :download="resultFile.path.split('/').slice(-1)[0]"></q-btn>
+            <template v-if="resultFile !== null">
+                <div class="aoe-success">Crop Succeded !</div>
+                <q-btn type="a" glossy color="green" class="aoe-btn aoe-save" icon="save" label="Save" :href="resultFile.data" :download="resultFile.path.split('/').slice(-1)[0]"></q-btn>
+            </template>
         </div>
     </div>
 </template>
@@ -118,51 +117,12 @@ export default {
 }
 </script>
 <style scoped>
-.workRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-}
-
-.mediaCol {
-    flex: 1 1 16rem;
-    min-width: 0;
-}
-
-.monkCol {
-    flex: 0 1 10rem;
-}
-
-.mediaCol {
-    text-align: center;
-}
-
-.emptyHint {
-    font-family: var(--aoe-font);
-    font-size: 1.6rem;
-    color: var(--aoe-gold);
-    text-align: center;
-    padding: 2rem 0.5rem;
-    border: 2px dashed var(--aoe-gold-dark);
-    border-radius: 6px;
-}
-
-/* Le cadre épouse exactement la zone utile du média (hors bordure décorative) */
-.cropStage {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
-    line-height: 0;
-}
-
 .cadre {
     position: absolute;
-    inset: var(--media-border);
+    inset: 0;
 }
 
-/* Masque l'assombrissement qui déborde du cadre */
+/* Masque l'assombrissement qui deborde du cadre */
 .shade {
     position: absolute;
     inset: 0;
@@ -187,25 +147,5 @@ export default {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
     cursor: grab;
     touch-action: none;
-}
-
-.actionRow {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-
-.resultBox {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 2px groove var(--aoe-gold-dark);
-}
-
-.resultBox .aoe-save {
-    max-width: 24rem;
 }
 </style>

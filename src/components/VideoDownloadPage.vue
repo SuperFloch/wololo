@@ -1,7 +1,7 @@
 <template>
-    <div class="downloadPage">
+    <div class="downloadPage aoe-page">
         <div class="aoe-title">Download a Youtube video from URL</div>
-        <div class="workRow">
+        <div class="downloadBody">
             <div class="formCol">
                 <q-input label="Url" class="aoe-input" color="indigo-10" v-model="videoUrl" clearable></q-input>
                 <div class="btnRow">
@@ -9,12 +9,11 @@
                     <q-btn color="indigo-10" class="aoe-btn" glossy icon="audiotrack" @click="downloadAudio" :disable="!videoUrl || isConverting" label="Audio Only"></q-btn>
                 </div>
             </div>
-            <div class="monkCol">
+            <div class="aoe-monk">
                 <MonkAnimation :converting="isConverting" :ready="videoUrl !== ''" ref="monk" :muted="muted"></MonkAnimation>
             </div>
         </div>
-        <div class="resultBox" v-show="resultUrl !== null">
-            <img src="img/separator.png" class="separator" alt="">
+        <div class="aoe-actions" v-show="resultUrl !== null">
             <div class="aoe-success">Download Succeded !</div>
             <q-btn type="a" glossy color="green" class="aoe-btn aoe-save" icon="save" label="Save" :href="resultUrl" :download="'result.'+outFormat"></q-btn>
         </div>
@@ -68,45 +67,26 @@ export default {
 }
 </script>
 <style scoped>
-.workRow {
+.downloadBody {
+    flex: 1 1 0;
+    min-height: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.75rem;
     align-items: center;
     justify-content: center;
 }
 
 .formCol {
-    flex: 1 1 18rem;
+    flex: 1 1 16rem;
     min-width: 0;
-}
-
-.monkCol {
-    flex: 0 1 10rem;
 }
 
 .btnRow {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.75rem;
-    margin-top: 1rem;
-}
-
-.resultBox {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1rem;
-}
-
-.separator {
-    max-height: 4rem;
-    width: auto;
-}
-
-.resultBox .aoe-save {
-    max-width: 24rem;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
 }
 </style>
