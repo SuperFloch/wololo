@@ -1,64 +1,122 @@
 // app global css in SCSS form
-body {
-    background-size: cover;
-    background-position: center;
-}
-
 img,
 video {
     max-width: 100%;
-}
-
-.p-relative {
-    position: relative;
-}
-
-.stretch {
-    width: 100%;
-    height: 100%;
-}
-
-.margin-auto {
-    margin: auto;
-}
-
-.absolute-center {
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
 }
 
 .hidden {
     display: none;
 }
 
-.w-100 {
+/* ------------------------------------------------------------------
+   Thème "Age of Empires" : parchemin, or, bois sombre et bleu royal
+   ------------------------------------------------------------------ */
+:root {
+    --aoe-gold: #e6c565;
+    --aoe-gold-dark: #a68f55;
+    --aoe-brown: #3b2a14;
+    --aoe-brown-dark: #1d1409;
+    --aoe-blue: #1c2a73;
+    --aoe-blue-light: #3c5392;
+    --aoe-ink: #2a1a08;
+    --aoe-font: 'Brush Script MT', 'Papyrus', cursive;
+    --aoe-panel-bg: rgba(29, 20, 9, 0.78);
+    --media-border: 10px;
+}
+
+html,
+body {
+    background-color: var(--aoe-brown-dark);
+    overflow-x: hidden;
+}
+
+.q-layout {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* Cadre sombre à liseré doré, utilisé pour chaque zone de contenu */
+.aoe-panel {
+    background: var(--aoe-panel-bg);
+    border: 3px ridge var(--aoe-gold-dark);
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), inset 0 0 22px rgba(0, 0, 0, 0.55);
+    color: #fff;
+}
+
+/* Titres calligraphiés dorés */
+.aoe-title {
+    font-family: var(--aoe-font);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.1;
+    color: var(--aoe-gold);
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.85);
+    margin-bottom: 0.5rem;
+}
+
+.aoe-subtitle {
+    font-family: var(--aoe-font);
+    font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+    color: var(--aoe-gold);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+.aoe-success {
+    font-family: var(--aoe-font);
+    font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+    text-align: center;
+    color: #8be28b;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* Champs de saisie en parchemin */
+.aoe-input {
+    background: radial-gradient(circle, rgba(230, 197, 101, 1) 0%, rgba(166, 143, 85, 1) 100%);
+    border: 4px ridge rgba(60, 83, 146, 0.75);
+    border-radius: 4px;
+    padding: 0 0.75rem;
+    color: var(--aoe-ink);
+}
+
+.aoe-input .q-field__native,
+.aoe-input .q-field__input,
+.aoe-input .q-field__label {
+    color: var(--aoe-ink);
+}
+
+.aoe-input .q-field__label {
+    font-family: var(--aoe-font);
+    font-size: 1.3em;
+}
+
+.aoe-input .q-field__control:before,
+.aoe-input .q-field__control:after {
+    background: transparent;
+    border: 0;
+}
+
+/* Boutons : lettres capitales et liseré doré */
+.aoe-btn {
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    border: 2px solid var(--aoe-gold-dark);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.aoe-btn.q-btn--round {
+    border-width: 1px;
+}
+
+.aoe-save {
     width: 100%;
 }
-
-.q-panel {
-    min-height: 50vh;
-}
-
-.fileInput {
-    background: radial-gradient(circle, rgba(230, 197, 101, 1) 0%, rgba(166, 143, 85, 1) 100%);
-    border: 4mm ridge rgba(60, 83, 146, 0.733);
-}
-
-.fileInput :deep(.q-field__label) {
-    font-size: 2em;
-    height: 100%;
-    font-family: 'Brush Script MT', cursive;
-}
-
 
 /* width */
 
 ::-webkit-scrollbar {
-    width: 1vw;
+    width: 12px;
 }
 
 
@@ -73,12 +131,12 @@ video {
 
  ::-webkit-scrollbar-thumb {
     background:  radial-gradient(circle, rgba(230, 197, 101, 1) 0%, rgb(71, 61, 36) 100%);
-    border-radius: 1vh;
+    border-radius: 6px;
 }
 
 
 /* Handle on hover */
 
  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--aoe-gold-dark);
 }

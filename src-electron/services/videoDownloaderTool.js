@@ -1,127 +1,58 @@
 const fs = require('fs');
-// const ytdl = require('ytdl-core');
-const ytdl = require('@distube/ytdl-core');
-const readline = require('readline');
+const path = require('path');
 const cp = require('child_process');
 const http = require('http');
 const https = require('https');
-import cookie from './ytCookie';
-const agent = ytdl.createAgent(cookie);
 
 class VideoDownloaderTool {
     constructor(folderTool) {
         this.folderTool = folderTool
     }
     async downloadVideo(url) {
-        if (url.split('youtube').length > 1) {
-            return await this.downloadYoutubeVideo(url);
-        } else if (url.split('xnxx').length > 1) {
-            return await this.downloadVideoXnxx(url);
-        } else if (url.split('xvideos').length > 1) {
-            return await this.downloadVideoXvideos(url);
-        }
+        return await this.downloadVideo(url);
     }
-    async downloadYoutubeVideo(url) {
-        const finalPathVideo = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + url.substring(url.length - 5, url.length) + '_v.mp4';
-        const finalPathAudio = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + url.substring(url.length - 5, url.length) + '_a.mp3';
-        const finalPath = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + url.substring(url.length - 5, url.length) + '.mp4';
-
+    // Dossier contenant yt-dlp.exe et ffmpeg (extraResource en prod, ./resources en dev)
+    getBinFolder() {
+        const prod = path.join(process.resourcesPath || '', 'ffmpeg');
+        return fs.existsSync(path.join(prod, 'yt-dlp.exe')) ? prod : path.resolve('./resources/ffmpeg');
+    }
+    // Lance yt-dlp et retourne le chemin du fichier produit (ou null)
+    runYtDlp(url, extraArgs) {
+        const binFolder = this.getBinFolder();
+        const inputDir = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input';
+        const args = [
+            '--no-playlist',
+            '--no-warnings',
+            '--ffmpeg-location', binFolder,
+            '-P', inputDir,
+            '-o', '%(id)s.%(ext)s',
+            '--print', 'after_move:filepath',
+            ...extraArgs,
+            url
+        ];
         return new Promise(resolve => {
-            try {
-                const video = ytdl(url, { quality: 'highestvideo', agent })
-                video.pipe(fs.createWriteStream(finalPathVideo))
-                video.on('end', () => {
-                    const audio = ytdl(url, { quality: 'highestaudio' })
-                    audio.pipe(fs.createWriteStream(finalPathAudio))
-                    audio.on('end', () => {
-                        var ffmpeg = require("fluent-ffmpeg")()
-                            .setFfprobePath('./resources/ffmpeg/ffprobe.exe')
-                            .setFfmpegPath('./resources/ffmpeg/ffmpeg.exe');
-                        ffmpeg
-                            .input(finalPathVideo)
-                            .input(finalPathAudio)
-                            .addOptions(['-map 0:v', '-map 1:a', '-c:v copy'])
-                            .format('mp4')
-                            .outputOptions('-pix_fmt yuv420p')
-                            .output(finalPath)
-                            .on('end', function() {
-                                console.log('end')
-                                fs.unlinkSync(finalPathAudio);
-                                fs.unlinkSync(finalPathVideo);
-                                ffmpeg.kill();
-                                resolve(finalPath)
-                            })
-                            .on('error', function(err) {
-                                console.log('an error happened: ' + err.message);
-                                resolve(err)
-                                ffmpeg.kill()
-                            }).run();
-                    })
-                });
-                video.on('error', (e) => {
-                    console.log(e)
+            cp.execFile(path.join(binFolder, 'yt-dlp.exe'), args, { maxBuffer: 1024 * 1024 * 10, windowsHide: true }, (err, stdout, stderr) => {
+                if (err) {
+                    console.log(stderr || err.message)
                     resolve(null)
-                })
-            } catch (e) {
-                console.log(e)
-                resolve(e)
-            }
+                    return
+                }
+                const lines = stdout.split("?").map(l => l.trim()).filter(Boolean)
+                resolve(lines.length ? lines[lines.length - 1] : null)
+            })
         })
+    }
+    async downloadVideo(url) {
+        return await this.runYtDlp(url, [
+            '-f', 'bv*+ba/b',
+            '-S', 'vcodec:h264,res,acodec:m4a',
+            '--merge-output-format', 'mp4'
+        ]);
     }
     async downloadAudio(url) {
-        const finalPathAudio = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + url.substring(url.length - 5, url.length) + '_a.mp3';
-
-        return new Promise(resolve => {
-            try {
-                const audio = ytdl(url, { quality: 'highestaudio', agent })
-                audio.pipe(fs.createWriteStream(finalPathAudio))
-                audio.on('end', () => {
-                    resolve(finalPathAudio);
-                })
-                audio.on('error', (e) => {
-                    console.log(e)
-                    resolve(null)
-                })
-            } catch (e) {
-                resolve(e)
-            }
-        })
+        return await this.runYtDlp(url, ['-x', '--audio-format', 'mp3']);
     }
 
-    async downloadVideoXnxx(url) {
-        return new Promise((resolve) => {
-            const request = https.get(url, (response) => {
-                let body = '';
-
-                response.on('data', (data) => {
-                    body += data.toString();
-                });
-
-                response.on('end', async() => {
-                    let videoLink = body.split('html5video_base')[1].split('<a href="')[1];
-                    videoLink = videoLink.split('"')[0]
-                    resolve(await this.getFileFromUrl(videoLink))
-                });
-            });
-        });
-    }
-    async downloadVideoXvideos(url) {
-        return new Promise((resolve) => {
-            const request = https.get(url, (response) => {
-                let body = '';
-
-                response.on('data', (data) => {
-                    body += data.toString();
-                });
-
-                response.on('end', async() => {
-                    let videoLink = body.split('"contentUrl": "')[1];
-                    videoLink = videoLink.split('"')[0]
-                    resolve(await this.getFileFromUrl(videoLink))
-                });
-            });
-        });
-    }
     async getFileFromUrl(url) {
         return new Promise((resolve) => {
             const finalPath = this.folderTool.BASE_PATH + '/' + this.folderTool.WORKSPACE_DIR + '/input/' + Math.floor(Math.random() * 5000) + '.mp4';
@@ -130,7 +61,7 @@ class VideoDownloaderTool {
             if (url.split(':')[0] === 'https') {
                 protocol = https
             }
-            const request = protocol.get(url, function(response) {
+            protocol.get(url, function (response) {
                 response.pipe(file);
 
                 // after download completed close filestream

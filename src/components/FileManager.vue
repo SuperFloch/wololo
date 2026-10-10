@@ -1,61 +1,52 @@
 <template>
-    <div class="historyBody">
-        <div class="historyTitle">Files</div>
-        <div>
-            <q-file filled v-model="fileInputData" label="Load file" stack-label @update:model-value="addFile" label-color="white" class="input fileInput" />
+    <div class="historyBody aoe-panel">
+        <div class="aoe-title historyTitle">Files</div>
+        <q-file filled v-model="fileInputData" label="Load file" stack-label @update:model-value="addFile" class="aoe-input" />
+
+        <div class="section" v-if="files.active?.data != null">
+            <div class="aoe-subtitle">Active</div>
+            <div class="activePreview">
+                <MediaDisplayer :src="files.active.data"></MediaDisplayer>
+            </div>
         </div>
-        <hr>
-        <div>
-            <div class="sectionTitle">Active</div>
-            <MediaDisplayer v-if="files.active?.data != null" :src="files.active?.data"></MediaDisplayer>
-        </div>
-        <hr>
-        <div v-show="files.input.length > 0">
-            <div class="sectionTitle">Last inputs</div>
+
+        <div class="section" v-show="files.input.length > 0">
+            <div class="aoe-subtitle">Last inputs</div>
+            <div class="historyList">
             <div class="historyRow" v-for="(f, i) in files.input" :key="i">
                 <div class="thumbnail">
                     <MediaDisplayer :src="f.data"></MediaDisplayer>
                 </div>
-
-                <div>
-                    <div class="text-white">{{ f.path.split('/').slice(-1)[0] }}</div>
+                <div class="fileInfo">
+                    <div class="fileName" :title="fileName(f)">{{ fileName(f) }}</div>
                     <div class="buttons">
-
-                        <q-btn round icon="image" color="blue" size="sm" glossy @click="selectItem(f)"></q-btn>
-                        <a class="dl-butt q-btn q-btn-item non-selectable no-outline q-btn--standard bg-green q-btn--round text-white q-btn--actionable q-focusable q-hoverable glossy" :href="f.data" :download="f.path.split('/').slice(-1)[0]">
-                            <span class="q-focus-helper"></span>
-                            <span class="stretch q-btn__content text-center col items-center q-anchor--skip justify-center row">
-                                <i class="q-icon notranslate material-icons" aria-hidden="true" role="img">download</i>
-                            </span>
-                        </a>
-                        <q-btn round icon="close" color="red" size="sm" glossy @click="deleteItem(f)"></q-btn>
+                        <q-btn round icon="image" color="blue" size="sm" glossy class="aoe-btn" @click="selectItem(f)" title="Use this file"></q-btn>
+                        <q-btn round icon="download" color="green" size="sm" glossy class="aoe-btn" type="a" :href="f.data" :download="fileName(f)" title="Download"></q-btn>
+                        <q-btn round icon="close" color="red" size="sm" glossy class="aoe-btn" @click="deleteItem(f)" title="Delete"></q-btn>
                     </div>
                 </div>
             </div>
+            </div>
         </div>
-        <hr>
-        <div v-show="files.output.length > 0">
-            <div class="sectionTitle">Last outputs</div>
+
+        <div class="section" v-show="files.output.length > 0">
+            <div class="aoe-subtitle">Last outputs</div>
+            <div class="historyList">
             <div class="historyRow" v-for="(f, i) in files.output" :key="i">
                 <div class="thumbnail">
                     <MediaDisplayer :src="f.data"></MediaDisplayer>
                 </div>
-                <div>
-                    <div class="text-white">{{ f.path.split('/').slice(-1)[0] }}</div>
+                <div class="fileInfo">
+                    <div class="fileName" :title="fileName(f)">{{ fileName(f) }}</div>
                     <div class="buttons">
-                        <q-btn round icon="image" color="blue" size="sm" glossy @click="selectItem(f)"></q-btn>
-                        <a class="dl-butt q-btn q-btn-item non-selectable no-outline q-btn--standard bg-green q-btn--round text-white q-btn--actionable q-focusable q-hoverable glossy" :href="f.data" :download="f.path.split('/').slice(-1)[0]">
-                            <span class="q-focus-helper"></span>
-                            <span class="stretch q-btn__content text-center col items-center q-anchor--skip justify-center row">
-                                <i class="q-icon notranslate material-icons" aria-hidden="true" role="img">download</i>
-                            </span>
-                        </a>
-                        <q-btn round icon="close" color="red" size="sm" glossy @click="deleteItem(f)"></q-btn>
+                        <q-btn round icon="image" color="blue" size="sm" glossy class="aoe-btn" @click="selectItem(f)" title="Use this file"></q-btn>
+                        <q-btn round icon="download" color="green" size="sm" glossy class="aoe-btn" type="a" :href="f.data" :download="fileName(f)" title="Download"></q-btn>
+                        <q-btn round icon="close" color="red" size="sm" glossy class="aoe-btn" @click="deleteItem(f)" title="Delete"></q-btn>
                     </div>
                 </div>
             </div>
+            </div>
         </div>
-        <hr>
     </div>
 </template>
 <script>
@@ -107,6 +98,9 @@ export default {
                 }
             })
         },
+        fileName(f) {
+            return f.path.split('/').slice(-1)[0]
+        },
         selectItem(file) {
             this.files.active = file
             this.$emit('change', this.files.active)
@@ -123,53 +117,74 @@ export default {
 </script>
 <style scoped>
 .historyBody {
-    height: 100%;
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    padding: 0.75rem;
 }
 
 .historyTitle {
-    color: white;
-    font-family: 'Brush Script MT', cursive;
-    font-size: 4vh;
+    margin-bottom: 0.75rem;
 }
 
-.sectionTitle {
-    color: white;
-    font-family: 'Brush Script MT', cursive;
-    font-size: 3vh;
+.section {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 2px groove var(--aoe-gold-dark);
+}
+
+.activePreview {
+    margin-top: 0.5rem;
+}
+
+.historyList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .historyRow {
-    height: 7vh;
     display: flex;
-    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem;
+    min-width: 0;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(166, 143, 85, 0.5);
+    border-radius: 4px;
 }
 
 .historyRow .thumbnail {
-    width: 50%;
-}
-
-.historyRow .buttons {
-    height: fit-content;
-    margin: auto;
-}
-.historyRow .buttons span{
-    font-size: 1vh !important;
-}
-.historyRow .text-white{
-    font-size: 1vh;
-}
-.q-btn--round {
-    height: 4vh;
-    min-height: 0;
-    min-width: 0;
-    aspect-ratio: 1/1;
-}
-
-.dl-butt {
+    flex: 0 0 4.5rem;
+    height: 4.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12);
-    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.12) 51%, rgba(0, 0, 0, 0.04)) !important;
+    --media-border: 4px;
+}
+
+.historyRow .thumbnail :deep(img),
+.historyRow .thumbnail :deep(video) {
+    min-width: 0;
+    max-height: 4.5rem;
+    max-width: 100%;
+}
+
+.fileInfo {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.fileName {
+    color: #fff;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.buttons {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
 }
 </style>

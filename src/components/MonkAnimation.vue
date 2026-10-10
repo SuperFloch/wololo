@@ -1,14 +1,14 @@
 <template>
-    <div class="main">
-        <img src="img/heal.webp" v-if="converting">
-        <img src="img/heal.png" v-if="!converting">
-    </div>
-    <div class="hidden">
-        <audio src="sound/5031.wav" ref="monastery" :muted="muted"></audio>
-        <audio src="sound/5494.wav" ref="convert1" :muted="muted" loop></audio>
-        <audio src="sound/5495.wav" ref="convert2" :muted="muted" loop></audio>
-        <audio src="sound/5497.wav" ref="heal" :muted="muted"></audio>
-        <audio src="sound/deathSounds.mp3" ref="death" :muted="muted"></audio>
+    <div class="monkBox">
+        <img src="img/heal.webp" v-if="converting" alt="Monk converting">
+        <img src="img/heal.png" v-else alt="Monk">
+        <div class="hidden">
+            <audio src="sound/5031.wav" ref="monastery" :muted="muted"></audio>
+            <audio src="sound/5494.wav" ref="convert1" :muted="muted" loop></audio>
+            <audio src="sound/5495.wav" ref="convert2" :muted="muted" loop></audio>
+            <audio src="sound/5497.wav" ref="heal" :muted="muted"></audio>
+            <audio src="sound/deathSounds.mp3" ref="death" :muted="muted"></audio>
+        </div>
     </div>
 </template>
 <script>
@@ -21,7 +21,7 @@ export default defineComponent({
         muted: Boolean
     },
     watch:{
-        converting: function(newVal, oldVal) { // watch it
+        converting: function(newVal) { // watch it
             if(newVal){
                 this.$refs.convert1.play();
                 this.$refs.convert2.play();
@@ -31,7 +31,7 @@ export default defineComponent({
                 this.$refs.heal.play();
             }
         },
-        ready: function(newVal, oldVal){
+        ready: function(newVal){
             if(newVal){
                 this.$refs.monastery.play();
             }
@@ -51,16 +51,18 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-.main{
+.monkBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
-    position: relative;
 }
-.main img{
-    width: 30%;
-    margin: auto;
-    position: absolute;
-    left: 0;
-    right: 0;
+
+.monkBox img {
+    height: clamp(96px, 22vh, 200px);
+    width: auto;
+    image-rendering: pixelated;
     transform: scaleX(-1);
+    filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.6));
 }
 </style>

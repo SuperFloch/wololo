@@ -1,17 +1,17 @@
-import { app, BrowserWindow, nativeTheme, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 import os from 'os'
-import FolderTool from './services/folderTool';
-import ImageTool from './services/imageTool';
-import VideoDownloaderTool from './services/videoDownloaderTool';
+import FolderTool from './services/folderTool'
+import ImageTool from './services/imageTool'
+import VideoDownloaderTool from './services/videoDownloaderTool'
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform()
 
 let mainWindow
 
-const folderTool = new FolderTool(app);
-const videoDownloadTool = new VideoDownloaderTool(folderTool);
+const folderTool = new FolderTool(app)
+const videoDownloadTool = new VideoDownloaderTool(folderTool)
 
 function createWindow() {
     /**
@@ -62,96 +62,56 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('folder:read', async(e, data) => {
-    return await folderTool.readFolder(folderTool.getBaseFolderUrl() + '/' + data)
+// Convertit un fichier produit en { data (data URL), path }
+async function toResult(filePath) {
+    return { data: await folderTool.readFile(filePath), path: filePath }
+}
+
+// Point d'entree general pour toutes les conversions
+// data -> { file, inputExt, outputExt }
+const converters = {
+    mp4: (data) => data.inputExt === 'webp' ? ImageTool.convertWebpToVideo(data.file, 'mp4') : ImageTool.convertGifToVideo(data.file, 'mp4'),
+    webm: (data) => data.inputExt === 'webp' ? ImageTool.convertWebpToVideo(data.file, 'webm') : ImageTool.convertGifToVideo(data.file, 'webm'),
+    gif: (data) => ImageTool.convertToGif(data.file),
+    ico: (data) => ImageTool.convertPngToIco(data.file),
+    jpg: (data) => ImageTool.convertHeicToJpg(data.file),
+    webp: (data) => ImageTool.convertImageToWebp(data.file)
+}
+
+ipcMain.handle('file:convert', async(e, data) => {
+    try {
+        const convert = converters[data.outputExt]
+        if (!convert) return { error: 'Unsupported format: ' + data.outputExt }
+        return await toResult(await convert(data))
+    } catch (err) {
+        return { error: 'Conversion failed: ' + err.message }
+    }
 })
 ipcMain.handle('video:clip', async(e, data) => {
-    const fileUrl = await ImageTool.clipVideo(data.video, data.startTime, data.duration)
-    if (fileUrl) {
-        return { data: await folderTool.readFile(fileUrl), path: fileUrl }
-    }
-    return null
+    return await toResult(await ImageTool.clipVideo(data.video, data.startTime, data.duration))
 })
 ipcMain.handle('video:crop', async(e, data) => {
-    const fileUrl = await ImageTool.cropVideo(data.video, data.x, data.y, data.w, data.h)
-    if (fileUrl) {
-        return { data: await folderTool.readFile(fileUrl), path: fileUrl }
-    }
-    return null
+    return await toResult(await ImageTool.cropVideo(data.video, data.x, data.y, data.w, data.h))
 })
-
-// Poit d'entrée général pour toutes les conversions
-// data -> {file: [file], inputExt: [png, jpg, ...], outputExt: [png, jpg, ...]}
-ipcMain.handle('file:convert', async(e, data) => {
-    let fileUrl
+ipcMain.handle('img:remove-bg', async(e, data) => {
     try {
-        switch (data.outputExt) {
-            case 'mp4':
-            case 'webm':
-                if (data.inputExt === 'webp') {
-                    fileUrl = await ImageTool.convertWebpToWebm(data.img)
-                } else {
-                    fileUrl = await ImageTool.convertGifToVideo(data.file, data.outputExt)
-                }
-                break;
-            case 'gif':
-                fileUrl = await ImageTool.convertToGif(data.file)
-                break;
-            case 'ico':
-                fileUrl = await ImageTool.convertPngToIco(data.file)
-                break;
-            case 'jpg':
-                fileUrl = await ImageTool.convertHeicToJpg(data.file)
-                break;
-            case 'webp':
-                fileUrl = await ImageTool.convertImageToWebp(data.file)
-                break;
-        }
-        if (fileUrl) {
-            return { data: await folderTool.readFile(fileUrl), path: fileUrl }
-        }
-        return { error: 'Conversion failed' }
-    } catch (e) {
-        return { error: 'Conversion failed: ' + e.message }
+        return await toResult(await ImageTool.removeImageBackground(data.img))
+    } catch (err) {
+        return { error: 'Background removal failed: ' + err.message }
     }
-})
-ipcMain.handle('file:read', async(e, data) => {
-    return await folderTool.readFile(data.path);
-})
-ipcMain.handle('file:delete', async(e, path) => {
-    return folderTool.deleteFile(path);
-})
-ipcMain.on('img:rename', (e, data) => {
-    folderTool.renameFile(data.oldPath, data.newPath)
-})
-ipcMain.on('file:write', (e, data) => {
-    folderTool.writeFile(data.path, data.text)
-})
-ipcMain.handle('img:upload', (e, data) => {
-    return folderTool.uploadFile(data.path, data.buffer);
 })
 ipcMain.handle('video:download', async(e, data) => {
     const file = await videoDownloadTool.downloadVideo(data.url)
-    if (file) {
-        return { data: await folderTool.readFile(file), path: file }
-    }
-    return { error: 'Download failed' }
+    return file ? await toResult(file) : { error: 'Download failed' }
 })
 ipcMain.handle('audio:download', async(e, data) => {
     const file = await videoDownloadTool.downloadAudio(data.url)
-    if (file) {
-        return { data: await folderTool.readFile(file), path: file }
-    }
-    return { error: 'Download failed' }
+    return file ? await toResult(file) : { error: 'Download failed' }
 })
-ipcMain.handle('img:remove-bg', async(e, data) => {
-    const imgTool = new ImageTool(folderTool)
-    const dataPath = await imgTool.removeImageBackground(data.img)
-    return { data: await folderTool.readFile(dataPath), path: dataPath }
-})
-ipcMain.handle('clear', async(e) => {
-    return await folderTool.clearFolder()
-})
-ipcMain.on('quit', (e) => {
-    app.quit()
-})
+
+ipcMain.handle('folder:read', (e, data) => folderTool.readFolder(folderTool.getBaseFolderUrl() + '/' + data))
+ipcMain.handle('file:read', (e, data) => folderTool.readFile(data.path))
+ipcMain.handle('file:delete', (e, filePath) => folderTool.deleteFile(filePath))
+ipcMain.handle('img:upload', (e, data) => folderTool.uploadFile(data.path, data.buffer))
+ipcMain.handle('clear', () => folderTool.clearFolder())
+ipcMain.on('quit', () => app.quit())

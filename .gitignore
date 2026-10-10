@@ -131,3 +131,5 @@ dist
 
 workspace/
 .quasar
+
+*.exe

@@ -1,35 +1,28 @@
 <template>
-    <div class="p-relative">
-        <div class="row convertLine">
-            <div ref="input" class="col-4">
-                <MediaDisplayer v-if="inputFile != null" :src="inputFile.data" ref="media" @load="onLoad"></MediaDisplayer>
+    <div class="convertPage">
+        <div class="mediaCol">
+            <MediaDisplayer v-if="inputFile != null" :src="inputFile.data" ref="media" @load="onLoad"></MediaDisplayer>
+            <div v-else class="emptyHint">Load a file to begin</div>
+        </div>
+        <div class="monkCol">
+            <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
+            <div class="resultBox" v-if="resultFile != null">
+                <div class="aoe-success">Conversion Succeded !</div>
+                <q-btn type="a" glossy color="green" class="aoe-btn aoe-save" icon="save" label="Save" :href="resultFile.data" :download="computeResultFileName"></q-btn>
             </div>
-            <div ref="monk" class="col-4">
-                <div class="monk">
-                    <MonkAnimation :converting="isConverting" :ready="inputFile != null" :muted="muted"></MonkAnimation>
-                </div>
-                <div class="row resultLine flex-center" v-if="resultFile != null">
-                    <div class="downloadSuccessText">Conversion Succeded !</div>
-                    <div class="col-12">
-                        <a class="q-btn q-btn-item non-selectable no-outline q-btn--standard q-btn--rectangle q-btn--actionable q-focusable q-hoverable glossy bg-green stretch" :href="resultFile.data" :download="computeResultFileName">Save</a>
-                    </div>
+        </div>
+        <div class="formatCol">
+            <canvas ref="imgRenderer" hidden></canvas>
+            <div class="parcheminWrap">
+                <img src="img/parcheminBg.png" class="parchemin" alt="">
+                <div class="listContainer">
+                    <div class="listTitle">Output formats</div>
+                    <q-btn v-for="(i, k) in computeOutFormats" :key="k" @click="convert(i)" color="brown" glossy class="convertButton aoe-btn" :disable="i == 'ico' && !isActiveIco">
+                        {{ i }}
+                    </q-btn>
                 </div>
             </div>
-            <div ref="output" class="col-4 p-relative">
-                <canvas ref="imgRenderer" hidden></canvas>
-                <div class="p-relative convertButtonList">
-                    <img src="img/parcheminBg.png" class="parchemin w-100">
-                    <div class="listContainer">
-                        <div class="listTitle">Output formats</div>
-                        <div v-for="(i, k) in computeOutFormats" :key="k">
-                            <q-btn @click="convert(i)" color="brown" glossy class="convertButton" :disabled="i == 'ico' && !isActiveIco">
-                                {{ i }}
-                            </q-btn>
-                        </div>
-                    </div>
-                </div>
-                <img src="img/parcheminBot.png" class="w-100 parcheminBot">
-            </div>
+            <img src="img/parcheminBot.png" class="parcheminBot" alt="">
         </div>
     </div>
 </template>
@@ -154,6 +147,8 @@ export default defineComponent({
                     return ['gif']
                 case 'svg':
                     return ['png']
+                default:
+                    return []
             }
         },
         computeResultFileName() {
@@ -163,64 +158,104 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-.convertLine {
-    min-height: 30vh;
-    background-color: transparent;
+.convertPage {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
 }
 
-.convertButton {
+.emptyHint {
+    font-family: var(--aoe-font);
+    font-size: 1.6rem;
+    color: var(--aoe-gold);
     text-align: center;
-    text-transform: uppercase;
-    font-size: 2em;
-    font-weight: 800;
-    margin: 1vh auto;
-    width: 50%;
+    padding: 2rem 0.5rem;
+    border: 2px dashed var(--aoe-gold-dark);
+    border-radius: 6px;
 }
 
-.monk {
-    height: 35vh;
+.monkCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.resultBox {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.convertButtonList {
-    padding: 8vh 2vw 3vh 2vw;
+.formatCol {
+    min-width: 0;
+}
+
+.parcheminWrap {
+    position: relative;
     overflow: hidden;
-}
-
-.listContainer {
-    overflow: hidden;
-    height: fit-content;
-    text-align: center;
-}
-
-.listTitle {
-    position: relative;
-    font-size: 5vh;
-    position: relative;
-    color: rgba(16, 41, 111, 0.58);
-    font-family: 'Brush Script MT', cursive;
-}
-
-.parcheminBot {
-    margin-top: -2vh;
-    z-index: 5;
-    position: relative;
+    min-height: 8rem;
+    padding: 4rem 1.5rem 1rem;
 }
 
 .parchemin {
-    width: 100%;
     position: absolute;
-    top: 0vh;
-    margin: auto;
+    top: 0;
     left: 0;
-    right: 0;
+    width: 100%;
+    height: auto;
+    z-index: 0;
 }
 
-.downloadSuccessText {
-    margin: auto;
-    color: rgb(11, 87, 26);
-    font-size: 5vh;
-    font-family: 'Brush Script MT', cursive;
-    text-shadow: 1px 1px 4px rgba(76, 58, 29, 0.5);
+.listContainer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.listTitle {
+    font-family: var(--aoe-font);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: rgba(16, 41, 111, 0.85);
+    text-align: center;
+}
+
+.convertButton {
+    width: 70%;
+    min-width: 7rem;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+}
+
+.parcheminBot {
+    display: block;
+    width: 100%;
+    margin-top: -1px;
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 1099px) {
+    .convertPage {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .formatCol {
+        grid-column: 1 / -1;
+        max-width: 24rem;
+        width: 100%;
+        justify-self: center;
+    }
+}
+
+@media (max-width: 599px) {
+    .convertPage {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }
 </style>
